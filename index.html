@@ -326,9 +326,15 @@
 </div>
 
 <script>
-  // ▼▼▼ 注意：API URL はご自身がGASで「新しいデプロイ」をした際の発行URLに書き換えてください ▼▼▼
-  const API_URL = 'https://script.google.com/macros/s/AKfycbw05CRQOTY-2la92QcrhEdbFLKUHGH6U-nFXymlUjljwwQXmTkqCpIkkvVdSF71Njux-A/exec';
-  // ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲
+// URLの末尾から "?api=〇〇" のパラメータを取得する
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryApiUrl = urlParams.get('api');
+
+  // デフォルトのAPI（今回のフェス用）
+  const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbw05CRQOTY-2la92QcrhEdbFLKUHGH6U-nFXymlUjljwwQXmTkqCpIkkvVdSF71Njux-A/exec';
+
+  // パラメータがあればそのAPIを読み込み、無ければデフォルト（今回のフェス）を読み込む
+  const API_URL = queryApiUrl ? queryApiUrl : DEFAULT_API_URL;
 
   let config = {}; 
   let allShows = []; 
@@ -758,4 +764,5 @@
   }
 </script>
 </body>
+
 </html>
