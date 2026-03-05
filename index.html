@@ -441,7 +441,7 @@
         <button id="share-btn" onclick="shareScheduleImage()"
           class="w-full bg-[#123b53] text-white py-3.5 rounded-xl font-[900] text-sm shadow-xl hover:bg-[#0a2230] active:scale-95 transition-all flex justify-center items-center flex-col leading-tight">
           <span>📱 SNSでシェアする</span>
-          <span class="text-[10px] font-normal opacity-80 mt-1" id="share-helper-text">PCは画像コピー＆X起動</span>
+          <span class="text-[10px] font-normal opacity-80 mt-1" id="share-helper-text">スマホは直接、PCは画像コピー＆X起動</span>
         </button>
 
         <button id="download-btn" onclick="downloadScheduleImage()"
@@ -866,7 +866,7 @@
         });
 
         const file = new File([blob], `hashigo-pass-${config.date}.png`, { type: 'image/png' });
-        const shareText = '名古屋 謎の縁のマイハシゴテーブルを作成したよ！\\n当日ご一緒する皆さん、よろしくお願いします！\\n#名古屋謎の縁 #謎の縁ハシゴ\\nhttps://telescope-kizunan.github.io/-/';
+        const shareText = '名古屋 謎の縁のマイハシゴテーブルを作成したよ！\n当日ご一緒する皆さん、よろしくお願いします！\n#名古屋謎の縁 #謎の縁ハシゴ\nhttps://telescope-kizunan.github.io/-/';
 
         // スマホ（Web Share API対応環境）かチェック
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -877,13 +877,13 @@
             const item = new ClipboardItem({ [blob.type]: blob });
             await navigator.clipboard.write([item]);
 
-            alert("画像をクリップボードにコピーしました！\\n\\nOKを押すとX(Twitter)の投稿画面が開きます。\\nテキスト入力欄で「貼り付け (Ctrl+V)」を押して画像を添付してください！");
+            alert("画像をクリップボードにコピーしました！\n\nOKを押すとX(Twitter)の投稿画面が開きます。\nテキスト入力欄で「貼り付け (Ctrl+V)」を押して画像を添付してください！");
 
             const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
             window.open(twitterUrl, '_blank');
           } catch (clipboardError) {
             console.error("クリップボードコピー失敗:", clipboardError);
-            alert("お使いのブラウザは画像の自動コピーに対応していません。\\n下の「画像を保存する」ボタンから保存して、手動でシェアをお願いします。");
+            alert("お使いのブラウザは画像の自動コピーに対応していません（または、ローカルファイルから直接開いているため制限されています）。\n\n下の「画像を保存する」ボタンから保存して、手動でシェアをお願いします。");
           }
         }
       } catch (error) {
@@ -896,6 +896,5 @@
     }
   </script>
 </body>
-
 
 </html>
