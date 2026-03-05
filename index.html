@@ -868,8 +868,11 @@
         const file = new File([blob], `hashigo-pass-${config.date}.png`, { type: 'image/png' });
         const shareText = '名古屋 謎の縁のマイハシゴテーブルを作成したよ！\n当日ご一緒する皆さん、よろしくお願いします！\n#名古屋謎の縁 #謎の縁ハシゴ\nhttps://telescope-kizunan.github.io/-/';
 
-        // スマホ（Web Share API対応環境）かチェック
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        // スマホ（Web Share API対応かつ、実際のモバイル端末）か厳密にチェック
+        // ※Windows 11のEdge/ChromeなどでもcanShareが通ってしまいPC用シェア画面が出るのを防ぐため
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], text: shareText });
         } else {
           // PC等の場合：クリップボードコピー ＋ X画面を開く
