@@ -616,7 +616,13 @@
         const c = colors[index % colors.length];
         const columnHeight = (config.endHour - config.startHour + 1) * PIXELS_PER_HOUR + HEADER_OFFSET;
 
-        const imageUrl = base["公演ビジュアルURL"] || base["画像URL"] || base["画像URL(無しでも可)"] || base.imageUrl;
+        let imageUrl = base["公演ビジュアルURL"] || base["画像URL"] || base["画像URL(無しでも可)"] || base.imageUrl;
+
+        // ★Google Driveの仕様変更による画像非表示(403)を回避する変換処理
+        // Apps Script側で変換された uc?export=view... を thumbnail... に再変換
+        if (imageUrl && imageUrl.includes("drive.google.com/uc?export=view&id=")) {
+          imageUrl = imageUrl.replace("uc?export=view&id=", "thumbnail?id=") + "&sz=w1000";
+        }
         const capacity = base["定員"] || "-";
         const duration = base["所要時間(分)"] || base.duration || "0";
         // ★修正箇所：会場の列名に対応
