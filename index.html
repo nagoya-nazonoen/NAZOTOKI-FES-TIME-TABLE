@@ -461,6 +461,8 @@
     let config = {};
     let allShows = [];
     let selectedIds = [];
+    let heatmapData = {};            // { 'show-1': 42, 'show-5': 18, ... }
+    let heatmapDebounceTimer = null; // ヒートマップ送信の遅延タイマー
 
     // 定数：ヘッダーの高さ、1時間あたりのピクセル数
     const HEADER_OFFSET = 240;
@@ -478,6 +480,10 @@
         if (data.error) {
           showError(data.error);
           return;
+        }
+        // ヒートマップ公開中の場合はデータを保持
+        if (data.heatmap) {
+          heatmapData = data.heatmap;
         }
         initApp(data);
         syncScrollbars();
@@ -630,10 +636,21 @@
         const circle = base["団体名"] || base["サークル名"] || "不明";
         const reserveUrl = base["予約URL"] || base.url;
 
+        // ヒートマップの艦オーバーレイ色を計算
+        const showId = base.id;
+        const showCount = heatmapData[showId] || 0;
+        const allCounts = Object.values(heatmapData);
+        const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 1;
+        const heatIntensity = maxCount > 0 ? Math.min(showCount / maxCount, 1) : 0;
+        const heatAlpha = (heatIntensity * 0.32).toFixed(2); // 最大 32% の赤み
+        const heatStyle = showCount > 0
+          ? `background: linear-gradient(135deg, rgba(220,38,38,${heatAlpha}) 0%, rgba(255,255,255,0) 100%) !important;`
+          : '';
+
         // 列（カラム）のベースとヘッダー部分
         let colHtml = `
         <div class="venue-col flex-1 border-r border-slate-100" style="height:${columnHeight}px">
-          <div class="timetable-header sticky top-0 bg-white/95 backdrop-blur-md px-2 py-3 z-30 h-[230px] flex flex-col border-b border-slate-200 shadow-sm overflow-hidden text-left"> 
+          <div class="timetable-header sticky top-0 bg-white/95 backdrop-blur-md px-2 py-3 z-30 h-[230px] flex flex-col border-b border-slate-200 shadow-sm overflow-hidden text-left" style="${heatStyle}"> 
 
             <div class="flex gap-2 items-start mb-2">
               <div class="flex-1 min-w-0">
@@ -719,6 +736,9 @@
         card.classList.add('selected-card');
       }
       updateUI();
+      // ハシゴの変更を３秒待ってヒートマップ送信（debounce）
+      clearTimeout(heatmapDebounceTimer);
+      heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
 
     // --- UIの更新（被り判定と下部バーの表示） ---
@@ -766,6 +786,38 @@
       }).join('');
     }
 
+    // ============================================================
+    // --- ヒートマップ送信処理 ---
+    // ============================================================
+
+    // UUIDを生成または既存のものを取得
+    function getOrCreateUserId() {
+      let uid = localStorage.getItem('heatmap_user_id');
+      if (!uid) {
+        uid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          const r = Math.random() * 16 | 0;
+          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        localStorage.setItem('heatmap_user_id', uid);
+      }
+      return uid;
+    }
+
+    // ハシゴ選択データをGASへPOST送信する
+    async function sendHeatmapData() {
+      try {
+        const userId = getOrCreateUserId();
+        await fetch(API_URL, {
+          method: 'POST',
+          // GASのPOST受信は Content-Type: text/plain を推奨
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ userId, selectedIds })
+        });
+      } catch (e) {
+        console.warn('Heatmap send failed (silent):', e);
+      }
+    }
+
     // 選択リセット
     function clearSelection() {
       selectedIds.forEach(id => {
@@ -774,6 +826,9 @@
       });
       selectedIds = [];
       updateUI();
+      // リセット時も送信（空配列を送る）
+      clearTimeout(heatmapDebounceTimer);
+      heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
 
     // --- ハシゴテーブルの生成とモーダル表示 ---
