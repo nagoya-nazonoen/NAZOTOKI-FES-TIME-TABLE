@@ -92,7 +92,7 @@
 
     /* タイムテーブルの列（横幅の自動調整） */
     .venue-col {
-      /* ★修正: flex-1を削除し、flex: 0 0 auto を指定。これで余計な隙間（広がろうとする挙動）が消滅します */
+      width: max-content; /* 中身の最大サイズに幅を固定 */
       flex: 0 0 auto;
       position: relative;
       background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
@@ -139,9 +139,9 @@
     /* 公演ビジュアル：個別の幅自動フィット */
     .program-visual {
       height: 110px;
-      /* ★修正: width: autoにすることで、縦長・横長など各MV本来の比率に合わせて幅が個別調整されます */
+      /* width: autoにすることで、縦長・横長など各MV本来の比率に合わせて幅が個別調整 */
       width: auto;
-      max-width: 240px; /* 異常に横長な画像が来た時のストッパー */
+      max-width: 140px; /* 異常に横長な画像が来た時のストッパー */
       object-fit: contain;
       border-radius: 4px;
       flex-shrink: 0;
