@@ -90,17 +90,14 @@
       background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
     }
 
-    /* タイムテーブルの列（横幅 160px / 1時間 70px 設定） */
-    /* ★修正: 横長画像に合わせて列幅が可変(max-content)になるように調整し、非表示アニメーションを追加 */
+    /* タイムテーブルの列（横幅の自動調整） */
     .venue-col {
-      min-width: 160px;
-      width: max-content;
+      /* ★修正: flex-1を削除し、flex: 0 0 auto を指定。これで余計な隙間（広がろうとする挙動）が消滅します */
+      flex: 0 0 auto;
       position: relative;
       background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
       background-size: 100% 35px;
-      /* 30分間隔のガイド線（後でJSで動的に変更） */
       background-position: 0 240px;
-      /* ヘッダーの位置 +10pxからガイド線開始 */
       background-repeat: repeat-y;
       transition: opacity 0.3s ease;
     }
@@ -139,12 +136,12 @@
       border-left: 6px solid #2563eb;
     }
 
-    /* 公演ビジュアル：縦長(2:3) */
-    /* ★修正: object-fit: contain; に変更し、見切れを防止。横長MVにも対応 */
+    /* 公演ビジュアル：個別の幅自動フィット */
     .program-visual {
       height: 110px;
-      width: max-content;
-      max-width: 180px;
+      /* ★修正: width: autoにすることで、縦長・横長など各MV本来の比率に合わせて幅が個別調整されます */
+      width: auto;
+      max-width: 240px; /* 異常に横長な画像が来た時のストッパー */
       object-fit: contain;
       border-radius: 4px;
       flex-shrink: 0;
@@ -195,10 +192,8 @@
       background-color: white !important;
       overflow: visible !important;
       width: max-content !important;
-      /* 横幅を限界まで広げる */
     }
 
-    /* ヘッダーや不要なUI（使い方ガイド等）をすべて非表示 */
     .pdf-mode #header-bg,
     .pdf-mode .guide-area-wrapper,
     .pdf-mode #status-area,
@@ -210,14 +205,12 @@
       display: none !important;
     }
 
-    /* Tailwindの特殊文字 "[" "]" はエスケープしないとCSSが効かないので修正 */
     .pdf-mode .max-w-\[1800px\] {
       max-width: none !important;
       padding: 0 !important;
       margin: 0 !important;
     }
 
-    /* タイムテーブルコンテナの制限を全解除して中身のサイズに広げる */
     .pdf-mode #table-container {
       overflow: visible !important;
       display: flex !important;
@@ -227,13 +220,10 @@
       box-shadow: none !important;
     }
 
-    /* sticky（ヘッダーの追従）を解除して、印刷時に要素が消えたり重なったりするのを防ぐ */
     .pdf-mode .sticky,
     .pdf-mode .timetable-header {
       position: relative !important;
       top: 0 !important;
-
-      /* PDF生成の邪魔になるエフェクトを強制解除 */
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
       background-color: white !important;
@@ -242,16 +232,8 @@
     }
 
     @media print {
-      /* A3などのサイズ制限をなくし、ブラウザに巨大な画像として認識させる */
-      @page {
-        size: auto;
-        margin: 0;
-      }
-
-      body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
+      @page { size: auto; margin: 0; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -262,7 +244,6 @@
     <header class="header-overlay relative pt-16 pb-16 px-4 md:px-6 flex flex-col items-center text-center overflow-hidden">
 
       <div class="title-banner-card z-10 py-10 px-8 md:px-16 max-w-4xl w-full text-center transition-all hover:-translate-y-1 duration-500">
-
         <div class="flex justify-center items-center gap-3 mb-6">
           <div class="h-[2px] w-12 bg-gradient-to-r from-transparent to-[#c9a044]"></div>
           <div class="px-4 py-1.5 text-[8px] sm:text-[10px] font-black tracking-[0.4em] text-white bg-[#123b53] rounded-full uppercase shadow-md border border-[#123b53]/20">
@@ -270,15 +251,12 @@
           </div>
           <div class="h-[2px] w-12 bg-gradient-to-l from-transparent to-[#c9a044]"></div>
         </div>
-
         <h1 id="fes-title" class="fancy-title text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#123b53] mb-6 drop-shadow-sm leading-tight">
           読み込み中...</h1>
-
         <div class="flex justify-center items-center gap-4 relative z-10">
           <p id="fes-subtitle" class="text-slate-500 font-bold text-[10px] md:text-sm tracking-[0.2em] uppercase bg-white/60 px-4 py-1.5 rounded-full border border-white shadow-sm">
             データ取得中</p>
         </div>
-
         <div class="absolute -right-6 -bottom-10 text-[150px] opacity-[0.03] font-black pointer-events-none text-[#123b53] mix-blend-overlay" style="font-family: serif;">謎</div>
       </div>
 
@@ -304,10 +282,8 @@
     </div>
 
     <div id="status-area" class="text-center py-2">
-      <p id="loading-msg" class="text-slate-400 font-medium animate-pulse text-xs uppercase tracking-widest">Deciphering
-        riddles...</p>
-      <div id="error-msg" class="hidden max-w-xl mx-auto bg-rose-50 border border-rose-100 p-6 rounded-3xl text-[#c5304b] font-bold text-sm">
-      </div>
+      <p id="loading-msg" class="text-slate-400 font-medium animate-pulse text-xs uppercase tracking-widest">Deciphering riddles...</p>
+      <div id="error-msg" class="hidden max-w-xl mx-auto bg-rose-50 border border-rose-100 p-6 rounded-3xl text-[#c5304b] font-bold text-sm"></div>
     </div>
 
     <div id="top-scrollbar-wrapper" class="mb-2 hidden">
@@ -319,8 +295,7 @@
       <div id="time-axis-col" class="w-20 flex-none bg-slate-50/50 border-r border-slate-200 pt-[230px]">
         <div id="time-axis" class="text-[11px] font-black text-slate-300"></div>
       </div>
-      <div id="timetable-grid" class="flex flex-1"></div>
-    </div>
+      <div id="timetable-grid" class="flex"></div> </div>
 
     <div class="flex justify-end mt-4 px-2 admin-ui gap-4">
       <button onclick="togglePdfMode()" class="text-[#123b53]/60 hover:text-[#123b53] text-[10px] font-black uppercase border border-[#123b53]/10 bg-white/50 px-3 py-1.5 rounded-md transition-all">
@@ -628,30 +603,25 @@
         
         let buttonHtml = `<div class="h-8"></div>`;
         if (isFamilyStyle) {
-          // ファミレス式の場合はオレンジ色の案内バッジ
           buttonHtml = `<div class="w-full bg-orange-500 text-white text-[11px] font-[900] py-1.5 rounded flex items-center justify-center shadow-lg uppercase tracking-tighter cursor-default">当日現地受付</div>`;
         } else if (reserveUrl && reserveUrl !== "") {
-          // 事前予約の場合は通常の予約ボタン
           buttonHtml = `<a href="${reserveUrl}" target="_blank" class="w-full bg-[#123b53] hover:bg-[#0a2230] text-white text-[11px] font-[900] py-1.5 rounded flex items-center justify-center shadow-lg transition-all uppercase tracking-tighter active:scale-95">予約する</a>`;
         }
 
-        // ★追加：場所の代わりに「料金」（スプレッドシートJ列）を表示
+        // ★修正：料金のデザインを「定員・所要」と完全に統一
         let priceHtml = '';
         if (base["参加料金"] !== undefined && base["参加料金"] !== "") {
           const priceVal = base["参加料金"];
-          // 数字だけなら「円」を付け、それ以外（例:"無料"）ならそのまま表示
           const priceText = isNaN(priceVal) ? priceVal : `${priceVal}円`;
           priceHtml = `
-            <div class="pt-0.5">
-              <span class="border-2 border-[#123b53]/10 bg-white ${c.text.replace('800', '700')} px-2 py-0.5 rounded text-[10px] font-black flex items-center gap-1 leading-none shadow-sm w-fit">
-                料金: ${priceText}
-              </span>
+            <div class="flex items-center gap-1.5 text-slate-400 font-medium">
+              <span>料金:</span> <span class="text-[#123b53] font-black">${priceText}</span>
             </div>`;
         }
 
-        // 列（カラム）のベースとヘッダー部分（data-reservation属性でフィルタリング制御）
+        // ★修正：クラスから flex-1 を削除し、列が余分に広がるのを防止
         let colHtml = `
-        <div class="venue-col flex-1 border-r border-slate-100" style="height:${columnHeight}px" data-reservation="${reservationType}">
+        <div class="venue-col border-r border-slate-100" style="height:${columnHeight}px" data-reservation="${reservationType}">
           <div class="timetable-header sticky top-0 bg-white/95 backdrop-blur-md px-2 py-3 z-30 h-[230px] flex flex-col border-b border-slate-200 shadow-sm overflow-hidden text-left"> 
 
             <div class="flex gap-2 items-start mb-2">
@@ -661,7 +631,7 @@
               </div>
               ${imageUrl
             ? `<img src="${imageUrl}" class="program-visual" alt="visual">`
-            : `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight">No Visual</div>`
+            : `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight w-20">No Visual</div>`
           }
             </div>
             
@@ -688,25 +658,22 @@
             : "";
 
           const showId = show.id || `show-${index}-${Math.random().toString(36).substr(2, 9)}`;
-          show.id = showId; // 後で検索できるようにIDを付与
+          show.id = showId;
 
           const currentShowCount = heatmapData[showId] || 0;
           const allCounts = Object.values(heatmapData);
           const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 1;
           const heatIntensity = maxCount > 0 ? Math.min(currentShowCount / maxCount, 1) : 0;
 
-          // ★修正：ファミレス式は全日ぶち抜き、事前予約は時間通りの高さに
           let cardStyle = "";
           let timeDisplay = "";
 
           if (isFamilyStyle) {
-            // イベント開始から終了までぶち抜き
             const top = HEADER_OFFSET;
             const height = (config.endHour - config.startHour + 1) * PIXELS_PER_HOUR - 1;
             cardStyle = `top:${top}px; height:${height}px;`;
             timeDisplay = `随時受付<br><span class="opacity-70 text-[9px]">(${config.startHour}:00 - ${config.endHour}:00)</span>`;
           } else {
-            // 通常通りの高さ計算
             const [h, m] = startStr.split(":").map(Number);
             const top = ((h - config.startHour) * 60 + m) * (PIXELS_PER_HOUR / 60) + HEADER_OFFSET;
             const showDuration = show["所要時間(分)"] || show.duration || 0;
@@ -716,13 +683,12 @@
             timeDisplay = `${startStr} — ${endStr}`;
           }
 
-          // 人気度に応じて赤色をブレンドするヒートマップ機能
           if (currentShowCount > 0) {
             const heatAlpha = (heatIntensity * 0.75).toFixed(2);
             cardStyle += ` background-color: rgba(239, 68, 68, ${heatAlpha}) !important; border-color: rgba(185, 28, 28, ${heatAlpha}) !important;`;
           }
 
-          // ★修正：onclickにeventを渡し、子要素（バツボタン）からの伝播を防ぐ準備
+          // onclickイベントでバツボタンクリック時の伝播を防ぐためのevent渡し
           colHtml += `
           <div onclick="toggleShow('${showId}', event)" id="card-${showId}" 
                style="${cardStyle}" 
@@ -746,9 +712,8 @@
     }
 
     // --- 公演の選択・解除 ---
-    // ★修正：引数にeventを追加し、stopPropagation()でバツボタン時の誤作動を防止
     function toggleShow(id, event) {
-      if (event) event.stopPropagation();
+      if (event) event.stopPropagation(); // バツボタンクリック時の伝播防止
       const idx = selectedIds.indexOf(id);
       const card = document.getElementById(`card-${id}`);
 
@@ -760,7 +725,6 @@
         if (card) card.classList.add('selected-card');
       }
       updateUI();
-      // ハシゴの変更を３秒待ってヒートマップ送信（debounce）
       clearTimeout(heatmapDebounceTimer);
       heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
@@ -774,23 +738,21 @@
         const card1 = document.getElementById(`card-${id1}`);
         if(card1) card1.classList.remove('conflict');
         
-        // ★追加：当日受付（ファミレス式）は随時参加可能なので、被り警告の対象から除外
+        // 当日受付（ファミレス式）は被り判定から除外
         if ((s1["予約形式"] || "") === "当日受付(ファミレス式)") return;
 
         const start1 = timeToMinutes(s1["開始時間(hh:mm)"] || s1.start);
         const end1 = timeToMinutes(s1.endTime || s1.end);
 
         selectedIds.forEach((id2, j) => {
-          if (i >= j) return; // 重複チェックを防ぐ
+          if (i >= j) return;
           const s2 = allShows.find(s => s.id == id2);
           
-          // ★追加：比較対象がファミレス式の場合も被り判定スルー
           if ((s2["予約形式"] || "") === "当日受付(ファミレス式)") return;
 
           const start2 = timeToMinutes(s2["開始時間(hh:mm)"] || s2.start);
           const end2 = timeToMinutes(s2.endTime || s2.end);
 
-          // 0分移動（終了と同時に開始）も「被り」として警告を出す判定
           if ((start1 <= end2 && end1 >= start2) || (start2 <= end1 && end2 >= start1)) {
             hasConflict = true;
             if(card1) card1.classList.add('conflict');
@@ -806,7 +768,7 @@
       bar.classList.toggle('translate-y-64', selectedIds.length === 0);
       bar.classList.toggle('translate-y-0', selectedIds.length > 0);
 
-      // ★追加：下部の選択リストに、個別の削除（×）ボタンを追加
+      // 下部リストに個別削除（×）ボタンを追加
       const container = document.getElementById('selected-items');
       container.innerHTML = selectedIds.map(sid => {
         const s = allShows.find(sh => sh.id == sid);
@@ -828,7 +790,6 @@
     // --- ヒートマップ送信処理 ---
     // ============================================================
 
-    // UUIDを生成または既存のものを取得
     function getOrCreateUserId() {
       let uid = localStorage.getItem('heatmap_user_id');
       if (!uid) {
@@ -841,13 +802,11 @@
       return uid;
     }
 
-    // ハシゴ選択データをGASへPOST送信する
     async function sendHeatmapData() {
       try {
         const userId = getOrCreateUserId();
         await fetch(API_URL, {
           method: 'POST',
-          // GASのPOST受信は Content-Type: text/plain を推奨
           headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ userId, selectedIds })
         });
@@ -856,7 +815,6 @@
       }
     }
 
-    // 選択リセット
     function clearSelection() {
       selectedIds.forEach(id => {
         const el = document.getElementById(`card-${id}`);
@@ -864,7 +822,6 @@
       });
       selectedIds = [];
       updateUI();
-      // リセット時も送信（空配列を送る）
       clearTimeout(heatmapDebounceTimer);
       heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
@@ -883,7 +840,6 @@
 
       let overlap = false;
       for (let i = 0; i < sel.length - 1; i++) {
-        // ★修正：モーダル内での被り判定からもファミレス式を除外
         if((sel[i]["予約形式"] || "") === "当日受付(ファミレス式)" || (sel[i + 1]["予約形式"] || "") === "当日受付(ファミレス式)") continue;
         
         const end1 = timeToMinutes(sel[i].endTime || sel[i].end);
@@ -894,13 +850,11 @@
 
       sel.forEach(s => {
         const circle = s["団体名"] || s["サークル名"] || "不明";
-        // モーダル内は指定通り「場所（会場）」を表示
         const venue = s["会場(部屋)"] || s["会場"] || "未定";
         const title = s["公演名"] || s.title;
         const startStr = s["開始時間(hh:mm)"] || s.start;
         const endStr = s.endTime || s.end;
 
-        // ★追加：ファミレス式の場合はモーダル内でも案内を変える
         const isFamily = (s["予約形式"] || "") === "当日受付(ファミレス式)";
         const displayTime = isFamily ? "随時受付 (空き時間でGO!)" : `🕒 ${startStr} — ${endStr}`;
         const accentColorClass = isFamily ? 'bg-orange-500' : 'bg-[#c5304b]';
@@ -928,7 +882,7 @@
       document.getElementById('my-schedule-modal').classList.add('hidden');
     }
 
-    // --- ① 画像保存処理（PC・スマホ共通） ---
+    // --- ① 画像保存処理 ---
     async function downloadScheduleImage() {
       const btn = document.getElementById('download-btn');
       const area = document.getElementById('capture-area');
@@ -956,7 +910,7 @@
       }
     }
 
-    // --- ② SNS投稿処理（スマホ/PC対応） ---
+    // --- ② SNS投稿処理 ---
     async function shareScheduleImage() {
       const btn = document.getElementById('share-btn');
       const area = document.getElementById('capture-area');
@@ -975,19 +929,15 @@
         const file = new File([blob], `hashigo-pass-${config.date}.png`, { type: 'image/png' });
         const shareText = '名古屋 謎の縁のマイハシゴテーブルを作成したよ！\n#名古屋謎の縁 \nhttps://telescope-kizunan.github.io/NAZOTOKI-FES-TIME-TABLE/';
 
-        // スマホ（Web Share API対応かつ、実際のモバイル端末）か厳密にチェック
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], text: shareText });
         } else {
-          // PC等の場合：クリップボードコピー ＋ X画面を開く
           try {
             const item = new ClipboardItem({ [blob.type]: blob });
             await navigator.clipboard.write([item]);
-
             alert("画像をクリップボードにコピーしました！\n\nOKを押すとX(Twitter)の投稿画面が開きます。\nテキスト入力欄で「貼り付け (Ctrl+V)」を押して画像を添付してください！");
-
             const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
             window.open(twitterUrl, '_blank');
           } catch (clipboardError) {
@@ -1005,5 +955,4 @@
     }
   </script>
 </body>
-
 </html>
