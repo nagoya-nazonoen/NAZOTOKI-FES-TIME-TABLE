@@ -391,6 +391,12 @@
       </div>
     </div>
   </div>
+  
+
+
+
+
+
 <script>
     // ▼▼▼ 注意：API URL はご自身がGASで「新しいデプロイ」をした際の発行URLに書き換えてください ▼▼▼
     const API_URL = 'https://script.google.com/macros/s/AKfycbwlnWMqXi5wIN-G649TPz3QgPDvGFD_xxP-7sYbc1F-3Q5hSXVBThfpu1Ag_zFVUKzD/exec';
@@ -399,30 +405,19 @@
     let config = {};
     let allShows = [];
     let selectedIds = [];
-    let heatmapData = {};            // { 'show-1': 42, 'show-5': 18, ... }
-    let heatmapDebounceTimer = null; // ヒートマップ送信の遅延タイマー
+    let heatmapData = {};
+    let heatmapDebounceTimer = null;
 
-    // 定数：ヘッダーの高さ、1時間あたりのピクセル数
     const HEADER_OFFSET = 240;
     const PIXELS_PER_HOUR = 70;
 
-    // --- 初期化処理 ---
     window.onload = async () => {
       try {
         const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error('ネットワークエラーが発生しました。');
-        }
+        if (!response.ok) throw new Error('ネットワークエラーが発生しました。');
         const data = await response.json();
-
-        if (data.error) {
-          showError(data.error);
-          return;
-        }
-        // ヒートマップ公開中の場合はデータを保持
-        if (data.heatmap) {
-          heatmapData = data.heatmap;
-        }
+        if (data.error) { showError(data.error); return; }
+        if (data.heatmap) heatmapData = data.heatmap;
         initApp(data);
         syncScrollbars();
         setInterval(updateNowLine, 60000);
@@ -431,22 +426,18 @@
       }
     };
 
-    // 文字列の時刻 "HH:MM" を分に変換
     function timeToMinutes(timeStr) {
       if (!timeStr || !timeStr.includes(':')) return 0;
       const parts = timeStr.split(':');
       return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     }
 
-    // 現在時刻の赤いラインを更新する関数
     function updateNowLine() {
       const now = new Date();
       const nowH = now.getHours();
       const nowM = now.getMinutes();
       const line = document.getElementById('now-line');
-
       if (config.startHour === undefined || config.endHour === undefined) return;
-
       if (nowH >= config.startHour && nowH <= config.endHour) {
         const top = ((nowH - config.startHour) * 60 + nowM) * (PIXELS_PER_HOUR / 60) + HEADER_OFFSET;
         line.style.top = top + "px";
@@ -456,50 +447,41 @@
       }
     }
 
-    // ★追加：タブ切り替え処理（ALL / 事前予約 / 当日受付）
     function filterShows(type) {
-      // 全ボタンのデザインを非アクティブにリセット
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('bg-[#123b53]', 'text-white', 'active-filter');
         btn.classList.add('text-slate-500', 'hover:bg-white/60');
       });
-      
-      // クリックされたボタンをアクティブにする
       const activeBtnId = type === 'ALL' ? 'filter-btn-ALL' : (type === '事前予約' ? 'filter-btn-PRE' : 'filter-btn-DAY');
       const activeBtn = document.getElementById(activeBtnId);
       activeBtn.classList.remove('text-slate-500', 'hover:bg-white/60');
       activeBtn.classList.add('bg-[#123b53]', 'text-white', 'active-filter');
 
-      // 該当しない列を非表示にする（出店者の公平性のための「非表示」対応）
       const cols = document.querySelectorAll('.venue-col');
       cols.forEach(col => {
         if (type === 'ALL' || col.dataset.reservation === type) {
-          col.style.display = ''; // 表示
+          col.style.display = '';
         } else {
-          col.style.display = 'none'; // 非表示
+          col.style.display = 'none';
         }
       });
-      syncScrollbars(); // スクロールバーの幅を再計算
+      syncScrollbars();
     }
 
-    // 印刷用PDFモードの切り替え
     function togglePdfMode() {
       document.getElementById('body-tag').classList.add('pdf-mode');
       alert("作成モードに切り替えました。印刷ダイアログでPDF保存してください。");
       setTimeout(() => { window.print(); }, 500);
     }
 
-    // 上下のスクロールバーを連動させる
     function syncScrollbars() {
       const wrapper = document.getElementById('top-scrollbar-wrapper');
       const container = document.getElementById('table-container');
       if (!wrapper || !container) return;
-
       wrapper.onscroll = () => { container.scrollLeft = wrapper.scrollLeft; };
       container.onscroll = () => { wrapper.scrollLeft = container.scrollLeft; };
     }
 
-    // エラー表示
     function showError(msg) {
       document.getElementById('loading-msg').classList.add('hidden');
       const errDiv = document.getElementById('error-msg');
@@ -507,14 +489,12 @@
       errDiv.classList.remove('hidden');
     }
 
-    // アプリケーションの描画準備
     function initApp(data) {
-      // APIから取得した基本設定をパース
       const rawConfig = data.config;
       config = {
         title: rawConfig["イベント名"] || "タイムテーブル",
         subtitle: rawConfig["サブタイトル(無しでも可)"] || "",
-        date: (rawConfig["開催日(YYYYMMDD)"] || rawConfig["開催日"] || "").replace(/\D/g, ""), // 数字のみ抽出 (2026/05/04 -> 20260504)
+        date: (rawConfig["開催日(YYYYMMDD)"] || rawConfig["開催日"] || "").replace(/\D/g, ""),
         startHour: parseInt((rawConfig["開始時間"] || "10:00").split(":")[0], 10),
         endHour: parseInt((rawConfig["終了時間"] || "21:00").split(":")[0], 10),
         headerUrl: rawConfig["ヘッダー画像URL(無しでも可)"] || rawConfig["背景画像URL(無しでも可)"] || "",
@@ -522,8 +502,6 @@
       };
 
       allShows = data.shows;
-
-      // タイトル周りの設定
       document.getElementById('fes-title').innerText = config.title;
       let modalTitle = config.title.includes("タイムテーブル")
         ? config.title.replace("タイムテーブル", "My ハシゴテーブル")
@@ -531,7 +509,6 @@
       document.getElementById('modal-fes-title').innerText = modalTitle;
       document.getElementById('fes-subtitle').innerText = config.subtitle;
 
-      // 日付のフォーマット (YYYYMMDD -> YYYY.MM.DD)
       const d = config.date;
       if (d.length === 8) {
         document.getElementById('modal-fes-date').innerText = `${d.substring(0, 4)}.${d.substring(4, 6)}.${d.substring(6, 8)}`;
@@ -540,17 +517,14 @@
       if (config.headerUrl) {
         document.getElementById('header-bg').style.backgroundImage = `url('${config.headerUrl}')`;
       }
-
       document.getElementById('loading-msg').classList.add('hidden');
 
-      // タイムラインのY軸（時間）を生成
       const axis = document.getElementById('time-axis');
       axis.innerHTML = '';
       for (let i = config.startHour; i <= config.endHour; i++) {
         axis.innerHTML += `<div style="height:${PIXELS_PER_HOUR}px" class="flex items-start justify-center pt-1 border-t border-slate-100/50">${i}:00</div>`;
       }
 
-      // ガイド線の間隔を設定（刻み幅が指定されている場合）
       const stepPx = config.stepMin * (PIXELS_PER_HOUR / 60);
       const styleEl = document.createElement('style');
       styleEl.innerHTML = `.venue-col { background-size: 100% ${stepPx}px !important; }`;
@@ -560,17 +534,14 @@
       updateNowLine();
     }
 
-    // --- タイムテーブルの描画 ---
     function renderTimetable(shows) {
       const container = document.getElementById('table-container');
       container.classList.remove('hidden');
 
-      // 公演タイトルの重複を削除してユニークな列を作成
       const titles = [...new Set(shows.map(item => item["公演名"]))].filter(Boolean);
       const grid = document.getElementById('timetable-grid');
       grid.innerHTML = '';
 
-      // 団体ごとのテーマカラー定義
       const colors = [
         { text: "text-blue-800", bg: "bg-blue-100", border: "border-blue-200", accent: "text-blue-500" },
         { text: "text-indigo-800", bg: "bg-indigo-100", border: "border-indigo-200", accent: "text-indigo-500" },
@@ -580,14 +551,11 @@
       ];
 
       titles.forEach((title, index) => {
-        // 当該列の代表的な情報（最初の公演データ）を取得
         const base = shows.find(s => s["公演名"] === title);
         const c = colors[index % colors.length];
         const columnHeight = (config.endHour - config.startHour + 1) * PIXELS_PER_HOUR + HEADER_OFFSET;
 
         let imageUrl = base["公演ビジュアルURL"] || base["画像URL"] || base["画像URL(無しでも可)"] || base.imageUrl;
-
-        // ★Google Driveの仕様変更による画像非表示(403)を回避する変換処理
         if (imageUrl && imageUrl.includes("drive.google.com/uc?export=view&id=")) {
           imageUrl = imageUrl.replace("uc?export=view&id=", "thumbnail?id=") + "&sz=w1000";
         }
@@ -596,8 +564,6 @@
         const duration = base["所要時間(分)"] || base.duration || "0";
         const circle = base["団体名"] || base["サークル名"] || "不明";
         const reserveUrl = base["予約URL"] || base.url;
-
-        // ★追加：予約形式（スプレッドシートK列）の取得とボタン出し分け
         const reservationType = base["予約形式"] || "事前予約";
         const isFamilyStyle = reservationType === "当日受付(ファミレス式)";
         
@@ -608,7 +574,6 @@
           buttonHtml = `<a href="${reserveUrl}" target="_blank" class="w-full bg-[#123b53] hover:bg-[#0a2230] text-white text-[11px] font-[900] py-1.5 rounded flex items-center justify-center shadow-lg transition-all uppercase tracking-tighter active:scale-95">予約する</a>`;
         }
 
-        // ★修正：料金のデザインを「定員・所要」と完全に統一
         let priceHtml = '';
         if (base["参加料金"] !== undefined && base["参加料金"] !== "") {
           const priceVal = base["参加料金"];
@@ -619,47 +584,43 @@
             </div>`;
         }
 
-        // ★修正：クラスから flex-1 を削除し、列が余分に広がるのを防止
+        // ★修正（仕様案B）
+        // テキストエリアの幅を w-[140px]（約10文字分）に固定し、whitespace-pre-wrap でスプレッドシートの改行をそのまま反映
         let colHtml = `
         <div class="venue-col border-r border-slate-100" style="height:${columnHeight}px" data-reservation="${reservationType}">
-          <div class="timetable-header sticky top-0 bg-white/95 backdrop-blur-md px-2 py-3 z-30 h-[230px] flex flex-col border-b border-slate-200 shadow-sm overflow-hidden text-left"> 
+          <div class="timetable-header sticky top-0 bg-white/95 backdrop-blur-md px-2 py-3 z-30 h-[230px] flex border-b border-slate-200 shadow-sm overflow-hidden text-left items-start"> 
+            
+            <div class="info-area w-[140px] flex-none flex flex-col h-full mr-2">
+                <div class="flex-1 min-w-0">
+                  <div class="text-[8px] font-black ${c.text} opacity-80 bg-white border ${c.border} px-1.5 py-0.5 rounded inline-block mb-1.5 tracking-widest leading-none break-words whitespace-pre-wrap">${circle}</div>
+                  <h3 class="font-[900] text-[13px] leading-[1.3] text-[#123b53] break-words whitespace-pre-wrap">${title}</h3>
+                </div>
+                
+                <div class="space-y-0.5 text-[9.5px] uppercase tracking-wider mb-2 font-black flex-none">
+                  <div class="flex items-center gap-1.5 text-slate-400 font-medium"><span>定員:</span> <span class="text-[#123b53] font-black">${capacity}</span></div>
+                  <div class="flex items-center gap-1.5 text-slate-400 font-medium"><span>所要:</span> <span class="text-[#123b53] font-black">${duration}分</span></div>
+                  ${priceHtml}
+                </div>
+                
+                <div class="mt-auto mb-1.5 reserve-btn-area">
+                  ${buttonHtml}
+                </div>
+            </div>
 
-            <div class="flex gap-2 items-start mb-2">
-              <div class="flex-1 min-w-0">
-                <div class="text-[8px] font-black ${c.text} opacity-80 bg-white border ${c.border} px-1.5 py-0.5 rounded inline-block mb-1.5 tracking-widest leading-none break-words">${circle}</div>
-                <h3 class="font-[900] text-[13px] leading-[1.2] text-[#123b53] line-clamp-5">${title}</h3>
-              </div>
-              ${imageUrl
-            ? `<img src="${imageUrl}" class="program-visual" alt="visual">`
-            : `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight w-20">No Visual</div>`
-          }
-            </div>
-            
-            <div class="space-y-0.5 text-[9.5px] uppercase tracking-wider mb-2 font-black flex-1">
-              <div class="flex items-center gap-1.5 text-slate-400 font-medium"><span>定員:</span> <span class="text-[#123b53] font-black">${capacity}</span></div>
-              <div class="flex items-center gap-1.5 text-slate-400 font-medium"><span>所要:</span> <span class="text-[#123b53] font-black">${duration}分</span></div>
-              ${priceHtml}
-            </div>
-            
-            <div class="mt-auto mb-1.5 reserve-btn-area">
-              ${buttonHtml}
-            </div>
+            ${imageUrl
+              ? `<img src="${imageUrl}" class="program-visual" alt="visual">`
+              : `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight w-20">No Visual</div>`
+            }
           </div>`;
 
-        // 該当公演のタイムスロット（カード）を配置
         shows.filter(s => s["公演名"] === title).forEach(show => {
           const startStr = show["開始時間(hh:mm)"] || show.start;
           if (!startStr || !startStr.includes(":")) return;
-
           const isSoldOut = show["完売設定"] === true || show["完売設定"] === "true" || show["完売設定"] === "完売" || show["完売設定"] === "売切" || show["完売"] === true || show["完売"] === "true" || show["完売"] === "完売";
           const soldOutClass = isSoldOut ? "opacity-30 grayscale pointer-events-none shadow-none" : "cursor-pointer";
-          const soldOutBadge = isSoldOut
-            ? `<div class="absolute inset-0 flex items-center justify-center z-10"><span class="bg-[#c5304b] text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-lg transform -rotate-12 uppercase text-center">SOLD OUT</span></div>`
-            : "";
-
+          const soldOutBadge = isSoldOut ? `<div class="absolute inset-0 flex items-center justify-center z-10"><span class="bg-[#c5304b] text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-lg transform -rotate-12 uppercase text-center">SOLD OUT</span></div>` : "";
           const showId = show.id || `show-${index}-${Math.random().toString(36).substr(2, 9)}`;
           show.id = showId;
-
           const currentShowCount = heatmapData[showId] || 0;
           const allCounts = Object.values(heatmapData);
           const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 1;
@@ -667,7 +628,6 @@
 
           let cardStyle = "";
           let timeDisplay = "";
-
           if (isFamilyStyle) {
             const top = HEADER_OFFSET;
             const height = (config.endHour - config.startHour + 1) * PIXELS_PER_HOUR - 1;
@@ -682,17 +642,16 @@
             const endStr = show.endTime || show.end || "";
             timeDisplay = `${startStr} — ${endStr}`;
           }
-
           if (currentShowCount > 0) {
             const heatAlpha = (heatIntensity * 0.75).toFixed(2);
             cardStyle += ` background-color: rgba(239, 68, 68, ${heatAlpha}) !important; border-color: rgba(185, 28, 28, ${heatAlpha}) !important;`;
           }
-
-          // onclickイベントでバツボタンクリック時の伝播を防ぐためのevent渡し
+          
+          // ★修正：left-2 right-2 を使用することで、画像の幅に合わせて列が広くなった分だけカードも連動して綺麗に広がります
           colHtml += `
           <div onclick="toggleShow('${showId}', event)" id="card-${showId}" 
                style="${cardStyle}" 
-               class="absolute left-3 right-3 p-4 transition-all duration-300 flex flex-col items-center justify-center timetable-card border border-slate-200 ${c.bg} ${c.border} ${soldOutClass} hover:brightness-95">
+               class="absolute left-2 right-2 p-4 transition-all duration-300 flex flex-col items-center justify-center timetable-card border border-slate-200 ${c.bg} ${c.border} ${soldOutClass} hover:brightness-95">
             ${soldOutBadge}
             <div class="font-black text-[11px] text-center leading-tight ${c.text.replace('800', '700')}">${timeDisplay}</div>
             ${currentShowCount > 0 ? `<div class="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-pulse z-20 tooltip-trigger" title="${currentShowCount}人がハシゴ予定！">🔥</div>` : ''}
@@ -702,7 +661,6 @@
         grid.innerHTML += colHtml + `</div>`;
       });
 
-      // スクロールバーの幅をコンテンツに合わせる
       const topScrollWrapper = document.getElementById('top-scrollbar-wrapper');
       const topScrollContent = document.getElementById('top-scrollbar-content');
       topScrollWrapper.classList.remove('hidden');
@@ -711,12 +669,10 @@
       }, 500);
     }
 
-    // --- 公演の選択・解除 ---
     function toggleShow(id, event) {
-      if (event) event.stopPropagation(); // バツボタンクリック時の伝播防止
+      if (event) event.stopPropagation();
       const idx = selectedIds.indexOf(id);
       const card = document.getElementById(`card-${id}`);
-
       if (idx > -1) {
         selectedIds.splice(idx, 1);
         if (card) card.classList.remove('selected-card');
@@ -729,30 +685,21 @@
       heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
 
-    // --- UIの更新（被り判定と下部バーの表示） ---
     function updateUI() {
       let hasConflict = false;
-
       selectedIds.forEach((id1, i) => {
         const s1 = allShows.find(s => s.id == id1);
         const card1 = document.getElementById(`card-${id1}`);
         if(card1) card1.classList.remove('conflict');
-        
-        // 当日受付（ファミレス式）は被り判定から除外
         if ((s1["予約形式"] || "") === "当日受付(ファミレス式)") return;
-
         const start1 = timeToMinutes(s1["開始時間(hh:mm)"] || s1.start);
         const end1 = timeToMinutes(s1.endTime || s1.end);
-
         selectedIds.forEach((id2, j) => {
           if (i >= j) return;
           const s2 = allShows.find(s => s.id == id2);
-          
           if ((s2["予約形式"] || "") === "当日受付(ファミレス式)") return;
-
           const start2 = timeToMinutes(s2["開始時間(hh:mm)"] || s2.start);
           const end2 = timeToMinutes(s2.endTime || s2.end);
-
           if ((start1 <= end2 && end1 >= start2) || (start2 <= end1 && end2 >= start1)) {
             hasConflict = true;
             if(card1) card1.classList.add('conflict');
@@ -761,23 +708,17 @@
           }
         });
       });
-
       document.getElementById('conflict-warning').classList.toggle('hidden', !hasConflict);
-
       const bar = document.getElementById('selection-bar');
       bar.classList.toggle('translate-y-64', selectedIds.length === 0);
       bar.classList.toggle('translate-y-0', selectedIds.length > 0);
-
-      // 下部リストに個別削除（×）ボタンを追加
       const container = document.getElementById('selected-items');
       container.innerHTML = selectedIds.map(sid => {
         const s = allShows.find(sh => sh.id == sid);
         const startStr = s["開始時間(hh:mm)"] || s.start;
         const title = s["公演名"] || s.title;
-        
         const isFamily = (s["予約形式"] || "") === "当日受付(ファミレス式)";
         const displayTime = isFamily ? "随時" : startStr;
-
         return `
         <div class="relative bg-white/10 border border-white/10 px-4 py-2.5 mt-2 rounded-2xl text-[11px] font-bold flex-none shadow-inner text-center group">
           <button onclick="toggleShow('${sid}', event)" class="absolute -top-2 -right-1 bg-slate-700 hover:bg-[#c5304b] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-md transition-all">×</button>
@@ -785,10 +726,6 @@
         </div>`;
       }).join('');
     }
-
-    // ============================================================
-    // --- ヒートマップ送信処理 ---
-    // ============================================================
 
     function getOrCreateUserId() {
       let uid = localStorage.getItem('heatmap_user_id');
@@ -826,39 +763,32 @@
       heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
 
-    // --- ハシゴテーブルの生成とモーダル表示 ---
     function showHashigoTable() {
       const list = document.getElementById('hashigo-list');
       const banner = document.getElementById('modal-conflict-banner');
       list.innerHTML = '';
-
       const sel = allShows.filter(s => selectedIds.includes(s.id)).sort((a, b) => {
         const tA = (a["開始時間(hh:mm)"] || a.start) || "";
         const tB = (b["開始時間(hh:mm)"] || b.start) || "";
         return tA.localeCompare(tB);
       });
-
       let overlap = false;
       for (let i = 0; i < sel.length - 1; i++) {
         if((sel[i]["予約形式"] || "") === "当日受付(ファミレス式)" || (sel[i + 1]["予約形式"] || "") === "当日受付(ファミレス式)") continue;
-        
         const end1 = timeToMinutes(sel[i].endTime || sel[i].end);
         const start2 = timeToMinutes(sel[i + 1]["開始時間(hh:mm)"] || sel[i + 1].start);
         if (end1 >= start2) overlap = true;
       }
       banner.classList.toggle('hidden', !overlap);
-
       sel.forEach(s => {
         const circle = s["団体名"] || s["サークル名"] || "不明";
         const venue = s["会場(部屋)"] || s["会場"] || "未定";
         const title = s["公演名"] || s.title;
         const startStr = s["開始時間(hh:mm)"] || s.start;
         const endStr = s.endTime || s.end;
-
         const isFamily = (s["予約形式"] || "") === "当日受付(ファミレス式)";
         const displayTime = isFamily ? "随時受付 (空き時間でGO!)" : `🕒 ${startStr} — ${endStr}`;
         const accentColorClass = isFamily ? 'bg-orange-500' : 'bg-[#c5304b]';
-
         list.innerHTML += `
         <div class="hashigo-card bg-white p-3 rounded-lg shadow-sm border border-[#c9a044]/30 relative overflow-hidden text-left">
           <div class="absolute left-0 top-0 bottom-0 w-1.5 ${accentColorClass}"></div>
@@ -870,7 +800,7 @@
                 <span>${venue}</span>
               </div>
             </div>
-            <div class="font-black text-sm text-slate-900 leading-tight mb-2">${title}</div>
+            <div class="font-black text-sm text-slate-900 leading-tight mb-2 whitespace-pre-wrap">${title}</div>
             <div class="text-[11px] font-black text-slate-500 tracking-tighter">${displayTime}</div>
           </div>
         </div>`;
@@ -878,59 +808,28 @@
       document.getElementById('my-schedule-modal').classList.remove('hidden');
     }
 
-    function closeModal() {
-      document.getElementById('my-schedule-modal').classList.add('hidden');
-    }
-
-    // --- ① 画像保存処理 ---
+    function closeModal() { document.getElementById('my-schedule-modal').classList.add('hidden'); }
     async function downloadScheduleImage() {
       const btn = document.getElementById('download-btn');
       const area = document.getElementById('capture-area');
       const originalText = btn.innerHTML;
-
-      btn.innerText = "画像生成中...";
-      btn.disabled = true;
-
+      btn.innerText = "画像生成中..."; btn.disabled = true;
       try {
-        const dataUrl = await htmlToImage.toPng(area, {
-          quality: 1.0,
-          pixelRatio: 3,
-          style: { overflow: 'visible', borderRadius: '2.5rem' }
-        });
-        const link = document.createElement('a');
-        link.download = `my-hashigo-pass-${config.date}.png`;
-        link.href = dataUrl;
-        link.click();
-      } catch (error) {
-        console.error('画像生成エラー:', error);
-        alert("保存に失敗しました。");
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-      }
+        const dataUrl = await htmlToImage.toPng(area, { quality: 1.0, pixelRatio: 3, style: { overflow: 'visible', borderRadius: '2.5rem' } });
+        const link = document.createElement('a'); link.download = `my-hashigo-pass-${config.date}.png`; link.href = dataUrl; link.click();
+      } catch (error) { console.error('画像生成エラー:', error); alert("保存に失敗しました。"); } 
+      finally { btn.innerHTML = originalText; btn.disabled = false; }
     }
-
-    // --- ② SNS投稿処理 ---
     async function shareScheduleImage() {
       const btn = document.getElementById('share-btn');
       const area = document.getElementById('capture-area');
       const originalText = btn.innerHTML;
-
-      btn.innerHTML = `<span>⏳ 準備中...</span>`;
-      btn.disabled = true;
-
+      btn.innerHTML = `<span>⏳ 準備中...</span>`; btn.disabled = true;
       try {
-        const blob = await htmlToImage.toBlob(area, {
-          quality: 1.0,
-          pixelRatio: 3,
-          style: { overflow: 'visible', borderRadius: '2.5rem' }
-        });
-
+        const blob = await htmlToImage.toBlob(area, { quality: 1.0, pixelRatio: 3, style: { overflow: 'visible', borderRadius: '2.5rem' } });
         const file = new File([blob], `hashigo-pass-${config.date}.png`, { type: 'image/png' });
         const shareText = '名古屋 謎の縁のマイハシゴテーブルを作成したよ！\n#名古屋謎の縁 \nhttps://telescope-kizunan.github.io/NAZOTOKI-FES-TIME-TABLE/';
-
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
         if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], text: shareText });
         } else {
@@ -938,21 +837,10 @@
             const item = new ClipboardItem({ [blob.type]: blob });
             await navigator.clipboard.write([item]);
             alert("画像をクリップボードにコピーしました！\n\nOKを押すとX(Twitter)の投稿画面が開きます。\nテキスト入力欄で「貼り付け (Ctrl+V)」を押して画像を添付してください！");
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-            window.open(twitterUrl, '_blank');
-          } catch (clipboardError) {
-            console.error("クリップボードコピー失敗:", clipboardError);
-            alert("お使いのブラウザは画像の自動コピーに対応していません。\n\n下の「画像を保存する」ボタンから保存して、手動でシェアをお願いします。");
-          }
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, '_blank');
+          } catch (clipboardError) { alert("お使いのブラウザは画像の自動コピーに対応していません。"); }
         }
-      } catch (error) {
-        console.error('シェア処理エラー:', error);
-        alert("画像の生成に失敗しました。");
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-      }
+      } catch (error) { console.error('シェア処理エラー:', error); alert("画像の生成に失敗しました。"); } 
+      finally { btn.innerHTML = originalText; btn.disabled = false; }
     }
   </script>
-</body>
-</html>
