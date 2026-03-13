@@ -763,7 +763,7 @@ function updateUI() {
         const startStr = s["開始時間(hh:mm)"] || s.start;
         const endStr = s.endTime || s.end;
         const isFamily = (s["予約形式"] || "") === "当日受付(ファミレス式)";
-        const displayTime = isFamily ? "随時受付" : `<span class="material-symbols-outlined text-[13px] mr-0.5">timer</span>${startStr} — ${endStr}`;
+        const displayTime = isFamily ? "随時受付" : `<span class="material-symbols-outlined text-[13px] mr-0.5">timer</span>${startStr} - ${endStr}`;
         const accentColorClass = isFamily ? 'bg-orange-500' : 'bg-[#c5304b]';
         list.innerHTML += `
         <div class="hashigo-card bg-white p-3 rounded-lg shadow-sm border border-[#c9a044]/30 relative overflow-hidden text-left">
@@ -883,6 +883,7 @@ function updateUI() {
     }
 
   </script>
+
 
 
 
