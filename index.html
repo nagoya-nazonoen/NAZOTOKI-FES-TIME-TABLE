@@ -576,10 +576,10 @@
         let buttonHtml = `<div class="h-8"></div>`;
         if (isFamilyStyle) {
           // 当日受付ボタン
-          buttonHtml = `<div class="w-full bg-orange-50/80 border border-orange-400/50 text-orange-600 text-[10px] font-bold py-1.5 rounded flex items-center justify-center uppercase tracking-tighter cursor-default">当日現地受付</div>`;
+          buttonHtml = `<div class="w-full bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-bold py-1.5 rounded flex items-center justify-center uppercase tracking-tighter cursor-default">当日現地受付</div>`;
         } else if (reserveUrl && reserveUrl !== "") {
-          // 予約ボタン
-          buttonHtml = `<a href="${reserveUrl}" target="_blank" class="w-full bg-slate-50 border border-slate-300 hover:bg-slate-100 text-slate-600 text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter active:scale-95">予約する</a>`;
+          // ★UI改善: 予約ボタン
+          buttonHtml = `<a href="${reserveUrl}" target="_blank" class="w-full bg-[#123b53]/10 border border-[#123b53]/30 hover:bg-[#123b53]/20 text-[#123b53] text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter active:scale-95">予約する</a>`;
         }
 
         let priceHtml = '';
@@ -736,7 +736,7 @@ function updateUI() {
         
         // 被っている公演に警告マーク付与
         const isConflict = document.getElementById(`card-${sid}`)?.classList.contains('conflict');
-        const warningIcon = isConflict ? '<span class="material-symbols-outlined text-[13px] text-[#c5304b] mr-0.5 animate-pulse align-middle">brightness_alert</span>' : '';
+        const warningIcon = isConflict ? '<span class="material-symbols-outlined text-[13px] text-[#c5304b] animate-pulse align-middle">brightness_alert</span>' : '';
 
         return `
         <div class="relative bg-white/10 border border-white/10 px-4 py-2.5 mt-2 rounded-2xl text-[11px] font-bold flex-none shadow-inner text-center group">
@@ -919,5 +919,6 @@ function updateUI() {
     }
 
   </script>
+
 
 
