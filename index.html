@@ -348,7 +348,7 @@
         <div id="hashigo-list" class="space-y-3.5 relative z-10"></div>
 
         <div class="mt-8 pt-4 border-t-2 border-dashed border-[#c9a044]/30 text-center relative z-10">
-          <div class="text-base font-black text-[#123b53] tracking-wider opacity-80 italic">#謎の縁</div>
+          <div class="text-base font-black text-[#123b53] tracking-wider opacity-80 italic">#名古屋謎の縁</div>
         </div>
       </div>
 
@@ -791,6 +791,12 @@ function updateUI() {
       btn.innerText = "画像生成中...";
       btn.disabled = true;
 
+      // Material Symbols含むの読み込み完了を待つ
+      await document.fonts.ready;
+      
+      // 念のため「500ミリ秒」待機する。おまじない
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // スクロールして隠れている部分を含めた「本当の高さ」を取得
       const targetHeight = area.scrollHeight;
 
@@ -798,11 +804,12 @@ function updateUI() {
         const dataUrl = await htmlToImage.toPng(area, {
           quality: 1.0,
           pixelRatio: 3,
-          height: targetHeight, // ★キャンバス自体を本当の高さまで広げる
+          cacheBust: true, // キャッシュを無視して、ライブラリに確実に再取得させる
+          height: targetHeight, // キャンバス自体を本当の高さまで広げる
           style: {
             overflow: 'visible',
-            maxHeight: 'none',  // ★画面上の高さ制限(95vh等)を無視させる
-            height: targetHeight + 'px', // ★要素を本当の高さまで広げる
+            maxHeight: 'none',  // 画面上の高さ制限(95vh等)を無視させる
+            height: targetHeight + 'px', 
             borderRadius: '2.5rem'
           }
         });
@@ -873,6 +880,7 @@ function updateUI() {
     }
 
   </script>
+
 
 
 
