@@ -7,9 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Serif+JP:wght@900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Serif+JP:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,700,0,0" rel="stylesheet" />
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -233,6 +232,12 @@
       @page { size: auto; margin: 0; }
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
+    /*Material Symbolsの太さや高さをテキストに合わせる調整 */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 20;
+      line-height: 1;
+      vertical-align: -0.15em;
+    }
   </style>
 </head>
 
@@ -379,12 +384,14 @@
 
       <div class="flex flex-col gap-3 mt-4">
         <button id="share-btn" onclick="shareScheduleImage()" class="w-full bg-[#123b53] text-white py-3.5 rounded-xl font-[900] text-sm shadow-xl hover:bg-[#0a2230] active:scale-95 transition-all flex justify-center items-center flex-col leading-tight">
-          <span>📱 SNSでシェアする</span>
+          <span class="flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px]">share</span>SNSでシェアする
+          </span>
           <span class="text-[10px] font-normal opacity-80 mt-1" id="share-helper-text">PCはXのみ対応</span>
         </button>
 
-        <button id="download-btn" onclick="downloadScheduleImage()" class="w-full bg-white text-[#123b53] py-3 rounded-xl font-[900] text-sm shadow-sm active:scale-95 transition-all border-2 border-[#123b53]/10 flex justify-center items-center">
-          📸 画像を保存する
+        <button id="download-btn" onclick="downloadScheduleImage()" class="w-full bg-white text-[#123b53] py-3 rounded-xl font-[900] text-sm shadow-sm active:scale-95 transition-all border-2 border-[#123b53]/10 flex justify-center items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">download</span>画像を保存する
         </button>
       </div>
     </div>
@@ -654,7 +661,7 @@
                class="absolute left-2 right-2 p-4 transition-all duration-300 flex flex-col items-center justify-center timetable-card border border-slate-200 ${c.bg} ${c.border} ${soldOutClass} hover:brightness-95">
             ${soldOutBadge}
             <div class="font-black text-[11px] text-center leading-tight ${c.text.replace('800', '700')}">${timeDisplay}</div>
-            ${currentShowCount > 0 ? `<div class="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-pulse z-20 tooltip-trigger" title="${currentShowCount}人がハシゴ予定！">🔥</div>` : ''}
+            ${currentShowCount > 0 ? `<div class="absolute -top-2 -right-2 bg-red-600 text-white w-4 h-4 rounded-full flex items-center justify-center shadow-md animate-pulse z-20 tooltip-trigger" title="${currentShowCount}人がハシゴ予定！"><span class="material-symbols-outlined text-[10px]">mode_heat</span></div>` : ''}
           </div>`;
         });
 
@@ -729,7 +736,7 @@ function updateUI() {
         
         // 被っている公演に警告マーク付与
         const isConflict = document.getElementById(`card-${sid}`)?.classList.contains('conflict');
-        const warningIcon = isConflict ? '<span class="text-[#c5304b] mr-1 animate-pulse">⚠️</span>' : '';
+        const warningIcon = isConflict ? '<span class="material-symbols-outlined text-[13px] text-[#c5304b] mr-0.5 animate-pulse align-middle">brightness_alert</span>' : '';
 
         return `
         <div class="relative bg-white/10 border border-white/10 px-4 py-2.5 mt-2 rounded-2xl text-[11px] font-bold flex-none shadow-inner text-center group">
@@ -799,7 +806,7 @@ function updateUI() {
         const startStr = s["開始時間(hh:mm)"] || s.start;
         const endStr = s.endTime || s.end;
         const isFamily = (s["予約形式"] || "") === "当日受付(ファミレス式)";
-        const displayTime = isFamily ? "随時受付 (空き時間でGO!)" : `🕒 ${startStr} — ${endStr}`;
+        const displayTime = isFamily ? "随時受付" : `<span class="material-symbols-outlined text-[13px] mr-0.5">timer</span>${startStr} — ${endStr}`;
         const accentColorClass = isFamily ? 'bg-orange-500' : 'bg-[#c5304b]';
         list.innerHTML += `
         <div class="hashigo-card bg-white p-3 rounded-lg shadow-sm border border-[#c9a044]/30 relative overflow-hidden text-left">
@@ -807,8 +814,8 @@ function updateUI() {
           <div class="ml-2">
             <div class="flex justify-between items-start mb-1 gap-2">
               <div class="text-[9px] font-black text-[#123b53] tracking-tighter leading-tight">${circle}</div>
-              <div class="text-[10px] font-black text-[#c9a044] bg-[#f9f7f1] border border-[#c9a044]/30 px-2 py-0.5 rounded leading-normal whitespace-nowrap flex-shrink-0 flex items-center gap-1">
-                <span style="font-family: sans-serif;">📍</span>
+              <div class="text-[10px] font-black text-[#c9a044] bg-[#f9f7f1] border border-[#c9a044]/30 px-2 py-0.5 rounded leading-normal whitespace-nowrap flex-shrink-0 flex items-center gap-0.5">
+                <span class="material-symbols-outlined text-[12px]">location_on</span>
                 <span>${venue}</span>
               </div>
             </div>
@@ -912,4 +919,5 @@ function updateUI() {
     }
 
   </script>
+
 
