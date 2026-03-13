@@ -530,7 +530,9 @@
       renderTimetable(allShows);
       updateNowLine();
     }
-
+    // ============================================================
+    // --- タイムテーブルの描画とUI構築 ---
+    // ============================================================
    function renderTimetable(shows) {
       const container = document.getElementById('table-container');
       container.classList.remove('hidden');
@@ -538,7 +540,7 @@
       const titles = [...new Set(shows.map(item => item["公演名"]))].filter(Boolean);
       const grid = document.getElementById('timetable-grid');
       grid.innerHTML = '';
-
+// 団体ごとのテーマカラー定義
       const colors = [
         { text: "text-blue-800", bg: "bg-blue-100", border: "border-blue-200", accent: "text-blue-500" },
         { text: "text-indigo-800", bg: "bg-indigo-100", border: "border-indigo-200", accent: "text-indigo-500" },
@@ -682,9 +684,14 @@
       clearTimeout(heatmapDebounceTimer);
       heatmapDebounceTimer = setTimeout(() => sendHeatmapData(), 3000);
     }
-
+    // ============================================================
+    // --- UIの更新（被り判定と下部バーの表示） ---
+    // ============================================================
+  
 function updateUI() {
       let hasConflict = false;
+
+  // 選択された公演の被り（重複）チェック
       selectedIds.forEach((id1, i) => {
         const s1 = allShows.find(s => s.id == id1);
         const card1 = document.getElementById(`card-${id1}`);
@@ -707,9 +714,11 @@ function updateUI() {
         });
       });
       document.getElementById('conflict-warning').classList.toggle('hidden', !hasConflict);
+  // 選択数に応じて下部バーを表示/非表示
       const bar = document.getElementById('selection-bar');
       bar.classList.toggle('translate-y-64', selectedIds.length === 0);
       bar.classList.toggle('translate-y-0', selectedIds.length > 0);
+  // 選択済み公演の生成
       const container = document.getElementById('selected-items');
       container.innerHTML = selectedIds.map(sid => {
         const s = allShows.find(sh => sh.id == sid);
@@ -903,3 +912,4 @@ function updateUI() {
     }
 
   </script>
+
