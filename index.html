@@ -317,7 +317,7 @@
 
   <div id="selection-bar" class="fixed bottom-3 left-3 right-3 md:bottom-6 md:left-6 md:right-6 max-w-6xl mx-auto bg-[#123b53] text-white p-3 pb-4 md:p-5 shadow-[0_10px_40px_rgba(0,0,0,0.4)] z-50 transform translate-y-64 transition-transform duration-500 rounded-2xl md:rounded-3xl border border-[#123b53]/20">
     <div class="w-full">
-      <div id="conflict-warning" class="hidden text-[#c5304b] font-bold text-[10px] md:text-xs mb-2 md:mb-3 flex items-center gap-1 animate-bounce">
+      <div id="conflict-warning" class="hidden text-[#ff6b8b] font-bold text-[10px] md:text-xs mb-2 md:mb-3 flex items-center gap-1 animate-bounce">
         <span class="material-symbols-outlined text-[13px] md:text-[15px]">Error</span>
         <span>このチョイスだと時間が被っててハシゴ出来ないよ！</span>
       </div>
@@ -376,8 +376,9 @@
           <div id="modal-fes-date" class="text-[10px] font-bold text-[#c9a044] tracking-[0.3em] block uppercase">---</div>
         </div>
 
-        <div id="modal-conflict-banner" class="hidden mb-5 p-3 bg-rose-50 rounded-xl text-[#c5304b] text-[10px] font-black text-center border border-rose-200 relative z-10">
-          ⚠️ このチョイスだと時間が被っててハシゴ出来ないよ！
+        <div id="modal-conflict-banner" class="hidden mb-5 p-3 bg-rose-50 rounded-xl text-[#ff6b8b] text-[10px] md:text-xs font-black border border-rose-200 relative z-10 flex items-center justify-center gap-1.5 shadow-sm">
+          <span class="material-symbols-outlined text-[14px] md:text-[16px] animate-pulse">Error</span>
+          <span>このチョイスだと時間が被っててハシゴ出来ないよ！</span>
         </div>
 
         <div id="hashigo-list" class="space-y-3.5 relative z-10"></div>
@@ -925,6 +926,7 @@ function updateUI() {
     }
 
   </script>
+
 
 
 
