@@ -408,7 +408,7 @@
       return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     }
 
-    function filterShows(type) {
+      function filterShows(type) {
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('bg-[#123b53]', 'text-white', 'active-filter');
         btn.classList.add('text-slate-500', 'hover:bg-white/60');
@@ -427,6 +427,13 @@
         }
       });
       syncScrollbars();
+
+      // スイッチでタイテの幅が変わった直後に、上のスクロールバーの長さを再計算して同期させる
+      const container = document.getElementById('table-container');
+      const topScrollContent = document.getElementById('top-scrollbar-content');
+      if (container && topScrollContent) {
+        topScrollContent.style.width = container.scrollWidth + "px";
+      }
     }
 
     function togglePdfMode() {
