@@ -628,13 +628,13 @@
       const topScrollContent = document.getElementById('top-scrollbar-content');
       topScrollWrapper.classList.remove('hidden');
 
-      // ★UI改善: 500msのタイマーを廃止し、ResizeObserverで幅の変動を常に監視・自動同期させる
+      // ResizeObserverで幅の変動を自動同期させる
       const grid = document.getElementById('timetable-grid');
       if (container && topScrollContent && grid) {
         const resizeObserver = new ResizeObserver(() => {
           topScrollContent.style.width = container.scrollWidth + "px";
         });
-        // 画像やフォントが読み込まれてグリッドの幅が変わるたびに上の処理が走る
+        // 画像やフォントが読み込まれて幅が変わるたびに上の処理が走る
         resizeObserver.observe(grid);
       }
     }
