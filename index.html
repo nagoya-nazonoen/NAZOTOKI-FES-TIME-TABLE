@@ -17,7 +17,7 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* 1. タイトルの特別装飾（Noto Serif JP） */
+    /* 1. タイトル（Noto Serif JP） */
     .fancy-title {
       font-family: 'Noto Serif JP', serif !important;
       font-weight: 900;
@@ -26,7 +26,7 @@
       filter: drop-shadow(0 2px 4px rgba(18, 59, 83, 0.15));
     }
 
-    /* 2. タイトルの可読性を高める「座布団」カード（プレミアム・グラスモーフィズム） */
+    /* 2. タイトルの可読性を高めるカード */
     .title-banner-card {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
       backdrop-filter: blur(20px);
@@ -52,7 +52,7 @@
       pointer-events: none;
     }
 
-    /* 3. カードデザイン：沈み込みアニメ付き */
+    /* 3. カードデザイン：沈み込みアニメ */
     .timetable-card {
       border-radius: 4px;
       border-width: 1px;
@@ -375,7 +375,7 @@
 
 
 <script>
-    // ▼▼▼ 注意：API URL はご自身がGASで「新しいデプロイ」をした際の発行URLに書き換えてください ▼▼▼
+    // ▼▼▼ 注意：API URL はGASで「新しいデプロイ」をした際の発行URLに書き換えて ▼▼▼
     const API_URL = 'https://script.google.com/macros/s/AKfycbwlnWMqXi5wIN-G649TPz3QgPDvGFD_xxP-7sYbc1F-3Q5hSXVBThfpu1Ag_zFVUKzD/exec';
     // ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲
 
@@ -503,7 +503,7 @@
       const titles = [...new Set(shows.map(item => item["公演名"]))].filter(Boolean);
       const grid = document.getElementById('timetable-grid');
       grid.innerHTML = '';
-// 団体ごとのテーマカラー定義
+    // 団体ごとのテーマカラー定義(好きな色にしていい)
       const colors = [
         { text: "text-blue-800", bg: "bg-blue-100", border: "border-blue-200", accent: "text-blue-500" },
         { text: "text-indigo-800", bg: "bg-indigo-100", border: "border-indigo-200", accent: "text-indigo-500" },
@@ -852,10 +852,10 @@ function updateUI() {
         const blob = await htmlToImage.toBlob(area, {
           quality: 1.0,
           pixelRatio: 3,
-          height: targetHeight, // ★キャンバス自体を本当の高さまで広げる
+          height: targetHeight, // キャンバス自体を本当の高さまで広げる
           style: {
             overflow: 'visible',
-            maxHeight: 'none',  // ★画面上の高さ制限を無視させる
+            maxHeight: 'none',  // 画面上の高さ制限を無視させる
             height: targetHeight + 'px',
             borderRadius: '2.5rem'
           }
