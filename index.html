@@ -206,6 +206,24 @@
       line-height: 1;
       vertical-align: -0.15em;
     }
+    /* 公演ヘッダーノイズ演出用CSS */
+    .bg-noise {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+    .glitch-title {
+      color: transparent;
+      background-color: #1e293b;
+      text-shadow: 2px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,255,255,0.5);
+      animation: glitch-anim 2s infinite linear alternate-reverse;
+    }
+    @keyframes glitch-anim {
+      0% { clip-path: inset(10% 0 30% 0); }
+      20% { clip-path: inset(80% 0 5% 0); }
+      40% { clip-path: inset(30% 0 50% 0); }
+      60% { clip-path: inset(5% 0 80% 0); }
+      80% { clip-path: inset(50% 0 20% 0); }
+      100% { clip-path: inset(20% 0 60% 0); }
+    }
   </style>
 </head>
 
@@ -405,7 +423,17 @@
       const parts = timeStr.split(':');
       return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
     }
-
+  　// 公演カードUNLOCK後予約ページ遷移
+    function unlockReserve(correctPassword, url) {
+      const input = prompt("【UNLOCKED】\nパスワードを入力してください");
+      if (input === null) return;
+      if (input === correctPassword) {
+        alert("Access Granted. 予約ページへ移行します。");
+        window.open(url, '_blank');
+      } else {
+        alert("Access Denied. パスワードが違います。");
+      }
+    }
       function filterShows(type) {
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('bg-[#123b53]', 'text-white', 'active-filter');
@@ -527,6 +555,11 @@
           imageUrl = imageUrl.replace("uc?export=view&id=", "thumbnail?id=") + "&sz=w1000";
         }
         
+        // スプレッドシート設定の読み込み
+        const isNoise = base["ノイズ演出"] === true || base["ノイズ演出"] === "TRUE" || base["ノイズ演出"] === "あり";
+        const lockPassword = base["南京錠パスワード"] || "";
+        const hasLock = lockPassword !== "";
+
         const capacity = base["定員"] || "-";
         const duration = base["所要時間(分)"] || base.duration || "0";
         const circle = base["団体名"] || base["サークル名"] || "不明";
@@ -534,12 +567,37 @@
         const reservationType = base["予約形式"] || "事前予約";
         const isFamilyStyle = reservationType === "当日受付(ファミレス式)";
         
+        //画像のノイズ処理
+        let visualHtml = "";
+        if (imageUrl) {
+          if (isNoise) {
+            visualHtml = `
+              <div class="relative flex-shrink-0 program-visual border-0 bg-transparent p-0 w-auto h-auto shadow-none">
+                <img src="${imageUrl}" class="h-[110px] w-auto max-w-[140px] object-contain rounded grayscale contrast-150 blur-[2px] opacity-60" alt="visual">
+                <div class="absolute inset-0 bg-noise opacity-40 mix-blend-overlay pointer-events-none rounded"></div>
+              </div>`;
+          } else {
+            visualHtml = `<img src="${imageUrl}" class="program-visual" alt="visual">`;
+          }
+        } else {
+          visualHtml = `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight w-20">No Visual</div>`;
+        }
+
+        // タイトルのノイズ処理
+        let titleHtml = `<h3 class="font-[900] text-[13px] leading-[1.3] text-[#123b53] break-words whitespace-pre-wrap">${title}</h3>`;
+        if (isNoise) {
+          titleHtml = `<h3 class="font-[900] text-[13px] leading-[1.3] glitch-title bg-noise rounded break-words whitespace-pre-wrap select-none px-1">████████</h3>`;
+        }
+
+        
         let buttonHtml = `<div class="h-8"></div>`;
         if (isFamilyStyle) {
-          // 当日受付ボタン
-          buttonHtml = `<div class="w-full bg-orange-30 border border-orange-200 text-orange-600 text-[10px] font-bold py-1.5 rounded flex items-center justify-center uppercase tracking-tighter cursor-default">当日現地受付</div>`;
+          buttonHtml = `<div class="w-full bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-bold py-1.5 rounded flex items-center justify-center uppercase tracking-tighter cursor-default">当日現地受付</div>`;
+        } else if (hasLock) {
+          buttonHtml = `<button onclick="unlockReserve('${lockPassword}', '${reserveUrl}')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-[11px] font-bold py-1.5 rounded flex items-center justify-center gap-1.5 transition-all uppercase tracking-tighter active:scale-95 shadow-md"><span class="material-symbols-outlined text-[14px] text-[#c9a044]">lock</span>UNLOCKED</button>`;
+        } else if (isNoise) {
+          buttonHtml = `<button disabled class="w-full bg-slate-200 border border-slate-300 text-slate-400 text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter cursor-not-allowed">UNLOCKED</button>`;
         } else if (reserveUrl && reserveUrl !== "") {
-          // 予約するボタン
           buttonHtml = `<a href="${reserveUrl}" target="_blank" class="w-full bg-blue-50 border border-[#123b53]/40 hover:bg-[#123b53]/5 text-[#123b53] text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter active:scale-95 shadow-sm">予約する</a>`;
         }
 
@@ -560,12 +618,9 @@
             <div class="flex gap-2 items-start mb-2">
               <div class="w-[80px] flex-none">
                 <div class="text-[8px] font-black ${c.text} opacity-80 bg-white border ${c.border} px-1.5 py-0.5 rounded inline-block mb-1.5 tracking-widest leading-none break-words whitespace-pre-wrap">${circle}</div>
-                <h3 class="font-[900] text-[13px] leading-[1.3] text-[#123b53] break-words whitespace-pre-wrap">${title}</h3>
+                ${titleHtml}
               </div>
-              ${imageUrl
-                ? `<img src="${imageUrl}" class="program-visual" alt="visual">`
-                : `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight w-20">No Visual</div>`
-              }
+              ${visualHtml}
             </div>
             
             <div class="space-y-0.5 text-[9.5px] uppercase tracking-wider mb-2 font-black flex-none">
