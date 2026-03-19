@@ -205,24 +205,30 @@
       font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 20;
       line-height: 1;
       vertical-align: -0.15em;
+      
+    }/* ノイズ演出用CSS（すりガラス風） */
+    .mystic-blur {
+      filter: blur(5px) opacity(0.85);
+      transition: filter 0.5s ease;
     }
-    /* 公演ヘッダーノイズ演出用CSS */
-    .bg-noise {
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    .mystic-shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 3s infinite linear;
     }
-    .glitch-title {
-      color: transparent;
-      background-color: #1e293b;
-      text-shadow: 2px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,255,255,0.5);
-      animation: glitch-anim 2s infinite linear alternate-reverse;
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
     }
-    @keyframes glitch-anim {
-      0% { clip-path: inset(10% 0 30% 0); }
-      20% { clip-path: inset(80% 0 5% 0); }
-      40% { clip-path: inset(30% 0 50% 0); }
-      60% { clip-path: inset(5% 0 80% 0); }
-      80% { clip-path: inset(50% 0 20% 0); }
-      100% { clip-path: inset(20% 0 60% 0); }
+    .mystic-text {
+      color: transparent !important;
+      text-shadow: 0 0 6px rgba(18, 59, 83, 0.35);
+      user-select: none;
+      animation: pulse-blur 4s infinite alternate ease-in-out;
+    }
+    @keyframes pulse-blur {
+      0% { text-shadow: 0 0 3px rgba(18, 59, 83, 0.2); }
+      100% { text-shadow: 0 0 8px rgba(18, 59, 83, 0.5); }
     }
   </style>
 </head>
@@ -568,40 +574,40 @@
         const isFamilyStyle = reservationType === "当日受付(ファミレス式)";
         
         //画像のノイズ処理
-        // ★変更：画像のノイズ処理（No Visual時も完全ノイズ化）
+        //画像のフロストガラス＆シマー
         let visualHtml = "";
         if (imageUrl) {
           if (isNoise) {
             visualHtml = `
-              <div class="relative flex-shrink-0 program-visual border-0 bg-transparent p-0 w-auto h-auto shadow-none">
-                <img src="${imageUrl}" class="h-[110px] w-auto max-w-[140px] object-contain rounded grayscale contrast-150 blur-[2px] opacity-60" alt="visual">
-                <div class="absolute inset-0 bg-noise opacity-40 mix-blend-overlay pointer-events-none rounded"></div>
+              <div class="relative flex-shrink-0 program-visual border-0 bg-slate-50 p-0 w-auto h-auto shadow-none overflow-hidden rounded">
+                <img src="${imageUrl}" class="h-[110px] w-auto max-w-[140px] object-contain rounded mystic-blur saturate-50" alt="visual">
+                <div class="absolute inset-0 mystic-shimmer pointer-events-none"></div>
               </div>`;
           } else {
             visualHtml = `<img src="${imageUrl}" class="program-visual" alt="visual">`;
           }
         } else {
           if (isNoise) {
-            visualHtml = `<div class="program-visual relative flex items-center justify-center text-[10px] font-bold italic text-center overflow-hidden w-20 bg-slate-800 border-slate-700"><div class="absolute inset-0 bg-noise opacity-50 pointer-events-none"></div><span class="glitch-title relative z-10 px-1 text-[8px]">NO DATA</span></div>`;
+            visualHtml = `<div class="program-visual relative flex items-center justify-center overflow-hidden w-20 bg-slate-50 border-slate-200 rounded"><div class="absolute inset-0 mystic-shimmer pointer-events-none"></div><span class="mystic-text relative z-10 px-1 text-[20px] font-serif">?</span></div>`;
           } else {
             visualHtml = `<div class="program-visual flex items-center justify-center text-[10px] text-slate-300 font-bold italic text-center leading-tight w-20">No Visual</div>`;
           }
         }
 
-        // ★変更：タイトルのノイズ処理
+        // タイトルのぼかし
         let titleHtml = `<h3 class="font-[900] text-[13px] leading-[1.3] text-[#123b53] break-words whitespace-pre-wrap">${title}</h3>`;
         if (isNoise) {
-          titleHtml = `<h3 class="font-[900] text-[13px] leading-[1.3] glitch-title bg-noise rounded break-words whitespace-pre-wrap select-none px-1">████████</h3>`;
+          titleHtml = `<h3 class="font-[900] text-[13px] leading-[1.3] mystic-text break-words whitespace-pre-wrap select-none">${title}</h3>`;
         }
 
-        // ★変更：ボタンロジック
+        // ボタン南京錠
         let buttonHtml = `<div class="h-8"></div>`;
         if (isFamilyStyle) {
           buttonHtml = `<div class="w-full bg-orange-50 border border-orange-200 text-orange-600 text-[10px] font-bold py-1.5 rounded flex items-center justify-center uppercase tracking-tighter cursor-default">当日現地受付</div>`;
         } else if (hasLock) {
-          buttonHtml = `<button onclick="unlockReserve('${lockPassword}', '${reserveUrl}')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-[11px] font-bold py-1.5 rounded flex items-center justify-center gap-1.5 transition-all uppercase tracking-tighter active:scale-95 shadow-md"><span class="material-symbols-outlined text-[14px] text-[#c9a044]">lock</span>UNLOCKED</button>`;
+          buttonHtml = `<button onclick="unlockReserve('${lockPassword}', '${reserveUrl}')" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-[11px] font-bold py-1.5 rounded flex items-center justify-center gap-1.5 transition-all uppercase tracking-tighter active:scale-95 shadow-sm"><span class="material-symbols-outlined text-[14px] text-[#c9a044]">lock</span>UNLOCKED</button>`;
         } else if (isNoise) {
-          buttonHtml = `<button disabled class="w-full bg-slate-200 border border-slate-300 text-slate-400 text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter cursor-not-allowed">UNLOCKED</button>`;
+          buttonHtml = `<button disabled class="w-full bg-slate-50 border border-slate-200 text-slate-400 text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter cursor-not-allowed">UNLOCKED</button>`;
         } else if (reserveUrl && reserveUrl !== "") {
           buttonHtml = `<a href="${reserveUrl}" target="_blank" class="w-full bg-blue-50 border border-[#123b53]/40 hover:bg-[#123b53]/5 text-[#123b53] text-[11px] font-bold py-1.5 rounded flex items-center justify-center transition-all uppercase tracking-tighter active:scale-95 shadow-sm">予約する</a>`;
         }
@@ -616,8 +622,8 @@
             </div>`;
         }
 
-        // ★変更：ヘッダー背景にもノイズを追加
-        const headerNoiseLayer = isNoise ? `<div class="absolute inset-0 bg-noise opacity-20 pointer-events-none z-0"></div>` : "";
+        // ヘッダー背景にも
+        const headerNoiseLayer = isNoise ? `<div class="absolute inset-0 bg-white/40 backdrop-blur-[2px] pointer-events-none z-0"></div>` : "";
 
         let colHtml = `
         <div class="venue-col border-r border-slate-100" style="height:${columnHeight}px" data-reservation="${reservationType}">
@@ -672,16 +678,15 @@
             timeDisplay = `${startStr} - ${endStr}`;
           }
 
-          // ヒートマップ処理
           if (currentShowCount > 0) {
             const hue = 60 - (heatIntensity * 60); 
             const heatAlpha = (0.2 + (heatIntensity * 0.6)).toFixed(2);
             cardStyle += ` background-color: hsla(${hue}, 90%, 60%, ${heatAlpha}) !important; border-color: hsla(${hue}, 90%, 50%, ${heatAlpha}) !important;`;
           }
 
-          // 下の時間割カードにもノイズを適用
-          const cardNoiseClass = isNoise ? "bg-noise !bg-slate-300 !border-slate-400 opacity-90" : `${c.bg} ${c.border}`;
-          const textNoiseClass = isNoise ? "glitch-title" : c.text.replace('800', '700');
+          // 下の時間割カードにもぼかしを適用
+          const cardNoiseClass = isNoise ? "!bg-slate-50/80 backdrop-blur-sm !border-slate-200" : `${c.bg} ${c.border}`;
+          const textNoiseClass = isNoise ? "mystic-text" : c.text.replace('800', '700');
           
           colHtml += `
           <div onclick="toggleShow('${showId}', event)" id="card-${showId}" 
