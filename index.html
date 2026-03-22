@@ -564,6 +564,7 @@
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const titleSizeClass = isIOS ? "text-[11px]" : "text-[13px]";
         const infoSizeClass = isIOS ? "text-[8.5px]" : "text-[9.5px]"; 
+        const cSize = isIOS ? "text-[7.5px]" : "text-[8px]";
         
         // グループ内の全公演データを取得
         const groupShows = shows.filter(s => s["公演名"] === title);
@@ -644,7 +645,7 @@
           <div class="timetable-header sticky top-0 bg-white/95 backdrop-blur-md px-2 py-3 z-30 h-[230px] flex flex-col border-b border-slate-200 shadow-sm overflow-hidden text-left relative"> 
             ${headerNoiseLayer}
             <div class="relative z-10 flex gap-2 items-start mb-2">
-              <div class="w-[80px] flex-none"> <div class="text-[8px] font-black ${c.text} opacity-80 bg-white border ${c.border} px-1.5 py-0.5 rounded inline-block mb-1.5 tracking-widest leading-none break-words whitespace-pre-wrap">${circle}</div> ${titleHtml}
+              <div class="w-[80px] flex-none"> <div class="${cSize} font-black ${c.text} opacity-80 bg-white border ${c.border} px-1.5 py-0.5 rounded inline-block mb-1.5 tracking-widest leading-none break-words whitespace-pre-wrap">${circle}</div> ${titleHtml}
               </div>
               ${visualHtml}
             </div>
