@@ -594,8 +594,8 @@
     <!-- イースターエッグ: 謎解き3Dプラネタリウム・モーダル -->
     <div id="planetarium-modal"
       class="fixed inset-0 z-[120] hidden bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] text-white overflow-hidden font-serif">
-      <!-- レトロアニメ風ノイズ壁紙 -->
-      <div class="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
+      <!-- レトロアニメ風ノイズ壁紙（最も重い原因となるmix-blendを削除し、不透明度のみに変えてGPU負荷を劇的に削減） -->
+      <div class="absolute inset-0 opacity-10 pointer-events-none"
         style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');">
       </div>
 
@@ -1576,8 +1576,14 @@
         window.addEventListener('deviceorientationabsolute', handlePlanetarium);
       }
 
+      let lastPlanetariumUpdate = 0;
       function handlePlanetarium(event) {
         if (!planetariumActive) return;
+
+        // 【新設】30FPSスロットル処理（33ms未満の細かすぎるセンサー更新の描画をスキップしてGPUを休ませる）
+        const now = Date.now();
+        if (now - lastPlanetariumUpdate < 33) return;
+        lastPlanetariumUpdate = now;
 
         let heading = event.webkitCompassHeading;
         if (heading == null && event.alpha != null) heading = 360 - event.alpha;
