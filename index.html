@@ -594,6 +594,10 @@
     <!-- イースターエッグ: 謎解き3Dプラネタリウム・モーダル -->
     <div id="planetarium-modal"
       class="fixed inset-0 z-[120] hidden bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] text-white overflow-hidden font-serif">
+      <!-- フリップ時と同じ細かい星の粒子背景 -->
+      <div class="absolute inset-0 pointer-events-none opacity-80"
+        style="background-image: radial-gradient(1px 1px at 20px 30px, #ffffff, transparent), radial-gradient(1px 1px at 40px 70px, #ffffff, transparent), radial-gradient(2px 2px at 90px 40px, #ffffff, transparent); background-size: 200px 200px;">
+      </div>
       <!-- レトロアニメ風ノイズ壁紙（最高画質の合成モードを復活！） -->
       <div class="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
         style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');">
@@ -1536,15 +1540,11 @@
           // 星座風エフェクト：レトロポップなネオン発光（最高画質エフェクトを完全復活！）
           const filterStyle = "filter: brightness(0) invert(1) drop-shadow(0 0 15px #f3e37c) drop-shadow(0 0 5px #fff); opacity: 0.9; mix-blend-mode: screen; transform: translateZ(0);";
           const visual = s["画像URL"]
-            ? `<img src="${s["画像URL"]}" class="w-20 h-20 object-contain mx-auto" style="${filterStyle}">`
-            : `<div class="w-4 h-4 bg-white/80 rounded-full shadow-[0_0_20px_#fff]"></div>`;
-
-          const titleClass = isSecret ? "text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 animate-[pulse_1.5s_ease-in-out_infinite] font-[900]" : "text-[#f3e37c]";
-
+            ? `<img src="${s["画像URL"]}" class="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto" style="${filterStyle}">`
+            : `<span class="material-symbols-outlined text-[60px]" style="color:#f3e37c; filter:drop-shadow(0 0 15px rgba(243,227,124,0.8)) drop-shadow(0 0 5px #fff); mix-blend-mode:screen;">kid_star</span>`;
 
           el.innerHTML = `
           ${visual}
-          <span class="mt-2 text-[10px] font-bold tracking-widest ${titleClass} bg-slate-900/60 px-2 py-1 rounded-md border border-white/10 whitespace-nowrap">${s["団体名"] || "Unknown Star"}</span>
         `;
           sky.appendChild(el);
         });
