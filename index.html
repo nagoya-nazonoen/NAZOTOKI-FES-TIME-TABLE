@@ -7,17 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Serif+JP:wght@900&display=swap"
-    rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,700,0,0"
-    rel="stylesheet" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet"
-    crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&display=swap" rel="stylesheet"
-    crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet"
-    crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Serif+JP:wght@900&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,700,0,0" rel="stylesheet" crossorigin="anonymous" />
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -370,16 +361,17 @@
       transform-origin: bottom center;
 
       /* ② 角度の調整 */
-      /* 65deg を小さくすると上向きに、大きくすると右向きになります */
+      /* 65deg を小さくすると上向きに、大きくすると右向き */
       transform: rotate(65deg);
 
       /* ③ 太さと長さの調整 */
       width: 100px;
       /* 先端の広がり幅 */
       margin-left: -50px;
-      /* 【重要】常に width の半分のマイナス値にしてください */
+      /* 【重要】常に width の半分のマイナス値に */
       height: 150px;
       /* 光線の長さ */
+
 
       /* 分析スキャンのようなオーラにする */
       background:
@@ -388,10 +380,10 @@
       background-size: 100% 100%, 100% 20px;
 
       /* ④ 広がり方（角度）の調整 */
-      /* 25% と 75% の数字をいじると広がりの角度が変わります（例: 40% 60% だとすごく極細ビームになります） */
+      /* 25% と 75% の数字をいじると広がりの角度が変化 */
       clip-path: polygon(25% 0, 75% 0, 51% 100%, 49% 100%);
 
-      /* ぼかし・光彩も控えめにして「物体」ではなく「現象」としてのニュアンスを強調 */
+
       filter: blur(1px) drop-shadow(0 0 3px rgba(243, 227, 124, 0.2));
       pointer-events: none;
       opacity: 0;
@@ -591,14 +583,12 @@
       </div>
     </div>
 
-    <!-- イースターエッグ: 謎解き3Dプラネタリウム・モーダル -->
+    <!-- イースターエッグ: プラネタリウム -->
     <div id="planetarium-modal"
       class="fixed inset-0 z-[120] hidden bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] text-white overflow-hidden font-serif">
-      <!-- フリップ時と同じ細かい星の粒子背景 -->
       <div class="absolute inset-0 pointer-events-none opacity-80"
         style="background-image: radial-gradient(1px 1px at 20px 30px, #ffffff, transparent), radial-gradient(1px 1px at 40px 70px, #ffffff, transparent), radial-gradient(2px 2px at 90px 40px, #ffffff, transparent); background-size: 200px 200px;">
       </div>
-      <!-- レトロアニメ風ノイズ壁紙（最高画質の合成モードを復活！） -->
       <div class="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
         style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');">
       </div>
@@ -608,7 +598,6 @@
       </div>
 
       <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <!-- 照準器もレトロポップ風に少し色付け -->
         <div
           class="relative w-20 h-20 border-2 border-[#f3e37c]/30 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(243,227,124,0.1)]">
           <div class="w-1.5 h-1.5 bg-[#f3e37c]/80 rounded-full shadow-[0_0_8px_#f3e37c]"></div>
@@ -630,7 +619,7 @@
       <button onclick="document.getElementById('planetarium-modal').classList.add('hidden')"
         class="absolute top-4 right-4 text-white/50 hover:text-[#f3e37c] p-4 text-3xl font-light z-20 transition-colors">&times;</button>
 
-      <!-- パスワード入力エリア (センサー起動後に表示) -->
+      <!-- パスワード入力エリア -->
       <div id="password-prompt"
         class="absolute bottom-10 left-4 right-4 max-w-sm mx-auto hidden flex-col items-center z-30 p-4 bg-[#1a1c29]/60 backdrop-blur-md border border-[#f3e37c]/30 rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)]">
         <div class="flex items-center gap-2 w-full">
@@ -642,11 +631,10 @@
       </div>
     </div>
 
-    <!-- イースターエッグ: クリア画面（バーボンハウス） -->
+    <!-- イースターエッグ: クリア画面 -->
     <div id="bourbon-modal"
       class="fixed inset-0 z-[130] hidden flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl text-white">
       <div id="bourbon-content" class="w-full max-w-sm p-8 text-center hidden">
-        <!-- サーバー(GAS)から正解時のみここにメッセージが注入される（ソースコードカンニング防止） -->
       </div>
       <div id="bourbon-loading" class="text-[#c9a044] animate-pulse font-serif hidden flex flex-col items-center">
         <span class="material-symbols-outlined text-4xl mb-2 block animate-spin">hourglass_empty</span>
@@ -733,7 +721,7 @@
           const data = await response.json();
           if (data.error) { showError(data.error); return; }
           if (data.heatmap) heatmapData = data.heatmap;
-          if (data.easterEgg) window.easterEggData = data.easterEgg; // スプレッドシートからのイースターエッグ配置データ
+          if (data.easterEgg) window.easterEggData = data.easterEgg;
           initApp(data);
           syncScrollbars();
         } catch (e) {
@@ -868,14 +856,17 @@
           { text: "text-pink-800", bg: "bg-pink-100", border: "border-pink-200", accent: "text-pink-500", phaseBg: "bg-pink-300", phaseText: "text-pink-900" }
         ];
 
+        // iPhone(iOS)かどうかを判定し、専用の文字サイズを設定（ループ外で1回だけ計算）
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const titleSizeClass = isIOS ? "text-[11px]" : "text-[13px]";
+        const infoSizeClass = isIOS ? "text-[8.5px]" : "text-[9.5px]";
+        const cSize = isIOS ? "text-[7px]" : "text-[8px]";
+        const headerHeightClass = isIOS ? "h-[245px]" : "h-[230px]";
+        const currentHeaderOffset = isIOS ? 255 : 240;
+
+        const colHtmls = []; // 文字列結合用
+
         titles.forEach((title, index) => {
-          // iPhone(iOS)かどうかを判定し、専用の文字サイズを設定
-          const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-          const titleSizeClass = isIOS ? "text-[11px]" : "text-[13px]";
-          const infoSizeClass = isIOS ? "text-[8.5px]" : "text-[9.5px]";
-          const cSize = isIOS ? "text-[7px]" : "text-[8px]";
-          const headerHeightClass = isIOS ? "h-[245px]" : "h-[230px]";
-          const currentHeaderOffset = isIOS ? 255 : 240;
 
           // グループ内の全公演データを取得
           const groupShows = shows.filter(s => s["公演名"] === title);
@@ -1004,7 +995,7 @@
 
             // 当日受付の場合、所要時間が未入力ならデフォルトで1日の終わりまで伸ばす
             if (isFamilyStyle && showDuration == 0) {
-              endT_min = (config.endHour + 1) * 60; 
+              endT_min = (config.endHour + 1) * 60;
             }
 
             const pAcceptEnd = show["受付終了時間"] || "";
@@ -1023,21 +1014,21 @@
 
             if (totalEndMin !== null && acceptEndMin !== null) {
               if (totalEndMin <= acceptEndMin) {
-                 endT_min = Math.max(totalEndMin, acceptEndMin);
+                endT_min = Math.max(totalEndMin, acceptEndMin);
               } else {
-                 endT_min = totalEndMin;
-                 const phaseHeight = (totalEndMin - acceptEndMin) * (PIXELS_PER_HOUR / 60) - 1;
-                 if (phaseHeight > 0) {
-                   const rawPhaseName = show["最終フェーズ表示名"] || "受付終了";
-                   const phaseName = String(rawPhaseName).replace(/\n/g, '<br>');
-                   phaseBlockHtml = `
+                endT_min = totalEndMin;
+                const phaseHeight = (totalEndMin - acceptEndMin) * (PIXELS_PER_HOUR / 60) - 1;
+                if (phaseHeight > 0) {
+                  const rawPhaseName = show["最終フェーズ表示名"] || "受付終了";
+                  const phaseName = String(rawPhaseName).replace(/\n/g, '<br>');
+                  phaseBlockHtml = `
                      <div class="absolute bottom-0 left-0 right-0 flex items-center justify-center p-1 ${c.phaseBg} border-t border-dashed border-white/60" style="height:${phaseHeight}px;">
                        <span class="text-[10px] font-black ${c.phaseText} leading-tight text-center drop-shadow-sm">${phaseName}</span>
                      </div>
                    `;
-                   // 追加ブロック分だけパディングを足して中央揃えのテキストが下にズレないようにする
-                   cardStyle += `padding-bottom: ${phaseHeight + 16}px; `;
-                 }
+                  // 追加ブロック分だけパディングを足して中央揃えのテキストが下にズレないようにする
+                  cardStyle += `padding-bottom: ${phaseHeight + 16}px; `;
+                }
               }
             } else if (totalEndMin !== null) {
               endT_min = totalEndMin;
@@ -1048,7 +1039,8 @@
             const height = Math.max(0, (endT_min - ((h * 60) + m)) * (PIXELS_PER_HOUR / 60) - 1);
             cardStyle += `top:${top}px; height:${height}px;`;
 
-            const endStr = show.endTime || show.end || `${Math.floor(endT_min/60)}:${('0'+(endT_min%60)).slice(-2)}`;
+            const calcEndStr = `${Math.floor(endT_min / 60)}:${('0' + (endT_min % 60)).slice(-2)}`;
+            const endStr = isFamilyStyle ? calcEndStr : (show.endTime || show.end || calcEndStr);
             const validStartStr = startStr || `${config.startHour}:00`;
 
             if (isFamilyStyle) {
@@ -1082,8 +1074,10 @@
           </div>`;
           });
 
-          grid.innerHTML += colHtml + `</div>`;
+          colHtmls.push(colHtml + `</div>`);
         });
+
+        grid.innerHTML += colHtmls.join('');
 
         const topScrollWrapper = document.getElementById('top-scrollbar-wrapper');
         const topScrollContent = document.getElementById('top-scrollbar-content');
@@ -1121,19 +1115,20 @@
 
       function updateUI() {
         let hasConflict = false;
+        const showsMap = new Map(allShows.map(s => [s.id, s])); // O(1)検索用マップ
 
         // 選択された公演の被り（重複）チェック
         selectedIds.forEach((id1, i) => {
-          const s1 = allShows.find(s => s.id == id1);
+          const s1 = showsMap.get(id1);
           const card1 = document.getElementById(`card-${id1}`);
           if (card1) card1.classList.remove('conflict');
-          if ((s1["予約形式"] || "") === "当日受付(ファミレス式)") return;
+          if (!s1 || (s1["予約形式"] || "") === "当日受付(ファミレス式)") return;
           const start1 = timeToMinutes(s1["開始時間(hh:mm)"] || s1.start);
           const end1 = timeToMinutes(s1.endTime || s1.end);
           selectedIds.forEach((id2, j) => {
             if (i >= j) return;
-            const s2 = allShows.find(s => s.id == id2);
-            if ((s2["予約形式"] || "") === "当日受付(ファミレス式)") return;
+            const s2 = showsMap.get(id2);
+            if (!s2 || (s2["予約形式"] || "") === "当日受付(ファミレス式)") return;
             const start2 = timeToMinutes(s2["開始時間(hh:mm)"] || s2.start);
             const end2 = timeToMinutes(s2.endTime || s2.end);
             if ((start1 <= end2 && end1 >= start2) || (start2 <= end1 && end2 >= start1)) {
@@ -1553,7 +1548,6 @@
         ];
 
         sky.innerHTML = '';
-        window.secretPassword = ""; // 初期化
 
         starsData.forEach((s, idx) => {
           let pitchTarget = 90; // 中層（画面正面）
@@ -1561,7 +1555,6 @@
           if (s["階層"] === "下層") pitchTarget = 60;  // 見下ろす
 
           const isSecret = (s["パスワード"] && String(s["パスワード"]).trim() !== "");
-          if (isSecret) window.secretPassword = String(s["パスワード"]).trim();
 
           const el = document.createElement('div');
           // translate3d で動的に配置するための中央固定のコンテナ。スマホGPUの点滅（フリッカー）防止のためbackface-visibilityを追加
@@ -1682,7 +1675,7 @@
           const dist = Math.sqrt(dx * dx + dy * dy);
           const maxDist = window.innerWidth * 0.7;
           let newOpacity = Math.max(0, 1 - (dist / maxDist));
-          
+
           // なめらかにしつつ微小なノイズ計算を捨てるため、小数点第2位に丸める
           newOpacity = Math.round(newOpacity * 100) / 100;
 
@@ -1702,7 +1695,7 @@
         planetariumActive = false;
         window.removeEventListener('deviceorientation', handlePlanetarium);
         window.removeEventListener('deviceorientationabsolute', handlePlanetarium);
-        
+
         document.getElementById('planetarium-modal').classList.add('hidden');
         document.getElementById('bourbon-modal').classList.remove('hidden');
         document.getElementById('bourbon-content').classList.add('hidden');
