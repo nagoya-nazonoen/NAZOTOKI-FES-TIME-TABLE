@@ -146,13 +146,12 @@
       border-left: 6px solid #2563eb;
     }
 
-    /* 公演ビジュアル：個別の幅自動フィット */
     .program-visual {
       height: 110px;
       /* width: autoにすることで、縦長・横長など各MV本来の比率に合わせて幅が個別調整 */
       width: auto;
-      max-width: 140px;
-      /* 異常に横長な画像が来た時のストッパー */
+      max-width: 85px;
+      /* 異常に横長・正方形な画像が来た時のストッパー、全体の列幅を揃える役割 */
       object-fit: contain;
       border-radius: 4px;
       flex-shrink: 0;
