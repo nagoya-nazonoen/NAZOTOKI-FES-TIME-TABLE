@@ -991,67 +991,69 @@
 
             // 行（時間枠）ごとの個別の設定を読み込む
             const isCardNoise = show["ノイズ演出"] === true || show["ノイズ演出"] === "TRUE" || show["ノイズ演出"] === "あり";
-            const isCardLock = (show["南京錠パスワード"] || "") !== "";
+            const [h, m] = (startStr && startStr.includes(":")) ? startStr.split(":").map(Number) : [config.startHour, 0];
+            const top = ((h - config.startHour) * 60 + m) * (PIXELS_PER_HOUR / 60) + currentHeaderOffset;
 
             let cardStyle = "";
             let timeDisplay = "";
             let phaseBlockHtml = "";
 
+            const showDuration = show["所要時間(分)"] || show.duration || 0;
+            let endT_min = (h * 60) + m + Number(showDuration);
+
+            // 当日受付の場合、所要時間が未入力ならデフォルトで1日の終わりまで伸ばす
+            if (isFamilyStyle && showDuration == 0) {
+              endT_min = (config.endHour + 1) * 60; 
+            }
+
+            const pAcceptEnd = show["受付終了時間"] || "";
+            let acceptEndMin = null;
+            if (pAcceptEnd.includes(":")) {
+              const [ah, am] = pAcceptEnd.split(":").map(Number);
+              acceptEndMin = (ah * 60) + am;
+            }
+
+            const pTotalEnd = show["完全終了時間"] || "";
+            let totalEndMin = null;
+            if (pTotalEnd.includes(":")) {
+              const [th, tm] = pTotalEnd.split(":").map(Number);
+              totalEndMin = (th * 60) + tm;
+            }
+
+            if (totalEndMin !== null && acceptEndMin !== null) {
+              if (totalEndMin <= acceptEndMin) {
+                 endT_min = Math.max(totalEndMin, acceptEndMin);
+              } else {
+                 endT_min = totalEndMin;
+                 const phaseHeight = (totalEndMin - acceptEndMin) * (PIXELS_PER_HOUR / 60) - 1;
+                 if (phaseHeight > 0) {
+                   const rawPhaseName = show["最終フェーズ表示名"] || "受付終了";
+                   const phaseName = String(rawPhaseName).replace(/\n/g, '<br>');
+                   phaseBlockHtml = `
+                     <div class="absolute bottom-0 left-0 right-0 flex items-center justify-center p-1 rounded-b-xl backdrop-blur-sm" style="height:${phaseHeight}px; background-color: rgba(0,0,0, 0.15); border-top: 1px dashed rgba(255,255,255,0.3);">
+                       <span class="text-[10px] font-bold text-slate-700/90 leading-tight text-center">${phaseName}</span>
+                     </div>
+                   `;
+                   // 追加ブロック分だけパディングを足して中央揃えのテキストが下にズレないようにする
+                   cardStyle += `padding-bottom: ${phaseHeight + 16}px; `;
+                 }
+              }
+            } else if (totalEndMin !== null) {
+              endT_min = totalEndMin;
+            } else if (acceptEndMin !== null) {
+              endT_min = acceptEndMin;
+            }
+
+            const height = Math.max(0, (endT_min - ((h * 60) + m)) * (PIXELS_PER_HOUR / 60) - 1);
+            cardStyle += `top:${top}px; height:${height}px;`;
+
+            const endStr = show.endTime || show.end || `${Math.floor(endT_min/60)}:${('0'+(endT_min%60)).slice(-2)}`;
+            const validStartStr = startStr || `${config.startHour}:00`;
+
             if (isFamilyStyle) {
-              const top = currentHeaderOffset;
-              const height = (config.endHour - config.startHour + 1) * PIXELS_PER_HOUR - 1;
-              cardStyle = `top:${top}px; height:${height}px;`;
-              timeDisplay = `随時受付<br><span class="opacity-70 text-[9px]">(${config.startHour}:00 - ${config.endHour}:00)</span>`;
+              timeDisplay = `随時受付<br><span class="opacity-70 text-[9px]">(${validStartStr} - ${endStr})</span>`;
             } else {
-              const [h, m] = startStr.split(":").map(Number);
-              const top = ((h - config.startHour) * 60 + m) * (PIXELS_PER_HOUR / 60) + currentHeaderOffset;
-              const showDuration = show["所要時間(分)"] || show.duration || 0;
-              
-              let endT_min = (h * 60) + m + Number(showDuration);
-
-              const pAcceptEnd = show["受付終了時間"] || "";
-              let acceptEndMin = null;
-              if (pAcceptEnd.includes(":")) {
-                const [ah, am] = pAcceptEnd.split(":").map(Number);
-                acceptEndMin = (ah * 60) + am;
-              }
-
-              const pTotalEnd = show["完全終了時間"] || "";
-              let totalEndMin = null;
-              if (pTotalEnd.includes(":")) {
-                const [th, tm] = pTotalEnd.split(":").map(Number);
-                totalEndMin = (th * 60) + tm;
-              }
-
-              if (totalEndMin !== null && acceptEndMin !== null) {
-                if (totalEndMin <= acceptEndMin) {
-                   endT_min = Math.max(totalEndMin, acceptEndMin);
-                } else {
-                   endT_min = totalEndMin;
-                   const phaseHeight = (totalEndMin - acceptEndMin) * (PIXELS_PER_HOUR / 60) - 1;
-                   if (phaseHeight > 0) {
-                     const rawPhaseName = show["最終フェーズ表示名"] || "受付終了";
-                     const phaseName = String(rawPhaseName).replace(/\n/g, '<br>');
-                     phaseBlockHtml = `
-                       <div class="absolute bottom-0 left-0 right-0 flex items-center justify-center p-1 rounded-b-xl backdrop-blur-sm" style="height:${phaseHeight}px; background-color: rgba(0,0,0, 0.15); border-top: 1px dashed rgba(255,255,255,0.3);">
-                         <span class="text-[10px] font-bold text-slate-700/90 leading-tight text-center">${phaseName}</span>
-                       </div>
-                     `;
-                     // 追加ブロック分だけパディングを足して中央揃えのテキストが下にズレないようにする
-                     cardStyle += `padding-bottom: ${phaseHeight + 16}px; `;
-                   }
-                }
-              } else if (totalEndMin !== null) {
-                endT_min = totalEndMin;
-              } else if (acceptEndMin !== null) {
-                endT_min = acceptEndMin;
-              }
-
-              const height = Math.max(0, (endT_min - ((h * 60) + m)) * (PIXELS_PER_HOUR / 60) - 1);
-              cardStyle += `top:${top}px; height:${height}px;`;
-
-              const endStr = show.endTime || show.end || "";
-              timeDisplay = `${startStr} - ${endStr}`;
+              timeDisplay = `${validStartStr} - ${endStr}`;
             }
 
             if (currentShowCount > 0) {
